@@ -1,0 +1,11 @@
+package com.uptc.complaint_sistem.repository;
+
+import com.uptc.complaint_sistem.model.Complaint;
+import com.uptc.complaint_sistem.model.PublicEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
+    List<Complaint> findByEntity(PublicEntity entity);
+}
