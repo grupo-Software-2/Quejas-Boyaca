@@ -5,13 +5,13 @@ FROM node:20 AS frontend-build
 
 WORKDIR /app
 
-# Copiar config de frontend
+# Copiar config de frontend y cachear dependencias
 COPY src/frontend/package*.json ./
-RUN npm install
+RUN npm ci
 
-# Copiar todo el frontend y construir
+# Copiar código y compilar
 COPY src/frontend ./
-RUN npm run build
+RUN npm run build && rm -rf node_modules
 
 
 # ============================
@@ -21,32 +21,30 @@ FROM maven:3.9.6-eclipse-temurin-21 AS backend-build
 
 WORKDIR /app
 
-# Copiar pom.xml primero para cachear dependencias
+# Cachear dependencias
 COPY src/backend/pom.xml ./
 RUN mvn dependency:go-offline
 
-# Copiar código backend
+# Copiar backend
 COPY src/backend ./
 
-# Copiar build del frontend dentro de resources (para que Spring lo sirva)
+# Copiar frontend dentro de resources (para servirlo con Spring)
 COPY --from=frontend-build /app/dist ./src/main/resources/static
 
-# Compilar el backend
-RUN mvn package -DskipTests
+# Compilar backend
+RUN mvn clean package -DskipTests && mv target/*.jar app.jar
 
 
 # ============================
 # STAGE 3: Runtime
 # ============================
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
-# Copiar el JAR del backend compilado
-COPY --from=backend-build /app/target/*.jar app.jar
+# Copiar jar generado
+COPY --from=backend-build /app/app.jar app.jar
 
-# Exponer el puerto (ajusta si tu backend usa otro)
 EXPOSE 8080
 
-# Correr la app
 ENTRYPOINT ["java", "-jar", "app.jar"]
