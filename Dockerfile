@@ -1,39 +1,19 @@
-# =====================
-# Etapa 1: Build Frontend
-# =====================
-FROM node:20 AS frontend-build
+# Etapa 1: build frontend
+FROM node:18 AS frontend
 WORKDIR /app/frontend
-
-# Copiar frontend
-COPY src/frontend/package.json src/frontend/package-lock.json ./
+COPY src/frontend/package*.json ./
 RUN npm install
-
-COPY frontend/ ./
+COPY src/frontend .
 RUN npm run build
 
-# =====================
-# Etapa 2: Build Backend con Maven
-# =====================
-FROM maven:3.9.6-eclipse-temurin-21 AS backend-build
+# Etapa 2: backend
+FROM node:18
 WORKDIR /app
+COPY src/backend/package*.json ./
+RUN npm install
+COPY src/backend .
+# Copiar build del frontend al backend (ej: si usas Express para servirlo)
+COPY --from=frontend /app/frontend/dist ./public
 
-# Copiar backend
-COPY backend/pom.xml .
-RUN mvn dependency:go-offline
-
-COPY src/backend/ .
-# Copiar build del frontend dentro de Spring Boot (para servir React desde static)
-COPY --from=frontend-build /app/frontend/dist ./src/main/resources/static
-
-RUN mvn clean package -DskipTests
-
-# =====================
-# Etapa 3: Imagen Final
-# =====================
-FROM eclipse-temurin:21-jdk
-WORKDIR /app
-
-COPY --from=backend-build /app/target/*.jar app.jar
-
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+EXPOSE 3000
+CMD ["npm", "start"]
