@@ -5,7 +5,7 @@ FROM node:20 AS frontend-build
 WORKDIR /app/frontend
 
 # Copiar frontend
-COPY frontend/package.json frontend/package-lock.json ./
+COPY src/frontend/package.json src/frontend/package-lock.json ./
 RUN npm install
 
 COPY frontend/ ./
@@ -21,7 +21,7 @@ WORKDIR /app
 COPY backend/pom.xml .
 RUN mvn dependency:go-offline
 
-COPY backend/ .
+COPY src/backend/ .
 # Copiar build del frontend dentro de Spring Boot (para servir React desde static)
 COPY --from=frontend-build /app/frontend/dist ./src/main/resources/static
 
