@@ -18,8 +18,6 @@ COPY src/frontend ./
 ENV NODE_OPTIONS=--max-old-space-size=2048
 RUN npm run build
 
-COPY --from=frontend-build /app/dist ./src/main/resources/static
-
 # ============================
 # STAGE 2: Build Backend (Java + Maven)
 # ============================
