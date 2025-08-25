@@ -12,10 +12,11 @@ COPY src/frontend/package*.json ./
 RUN npm ci
 
 # Copiar el resto del frontend
-COPY src/frontend ./ 
+COPY src/frontend ./
 
 # Build optimizado con más memoria (evita errores de OOM)
-RUN npm run build --max-old-space-size=1024
+ENV NODE_OPTIONS=--max-old-space-size=2048
+RUN npm run build
 
 # ============================
 # STAGE 2: Build Backend (Java + Maven)
