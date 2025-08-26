@@ -2,7 +2,7 @@
 ##Presentrado por 
 * Leandro Luis 
 * Maria Medina
-* Nicolas
+* Nicolas Munevar
 
 ## Desarrollado con:
 * Java SpringBoot
