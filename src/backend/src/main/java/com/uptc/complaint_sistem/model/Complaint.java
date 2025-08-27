@@ -11,8 +11,9 @@ public class Complaint {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    // Ahora es una relación a la tabla PublicEntity
+    @ManyToOne
+    @JoinColumn(name = "entity_id", nullable = false)
     private PublicEntity entity;
 
     @Column(nullable = false, length = 1000)
@@ -21,10 +22,12 @@ public class Complaint {
     @Column(nullable = false)
     private LocalDateTime date;
 
+    // Constructor vacío
     public Complaint() {
         this.date = LocalDateTime.now();
     }
 
+    // Constructor con parámetros
     public Complaint(PublicEntity entity, String text) {
         this.entity = entity;
         this.text = text;
@@ -33,11 +36,13 @@ public class Complaint {
 
     // Getters y Setters
     public Long getId() { return id; }
+
     public PublicEntity getEntity() { return entity; }
     public void setEntity(PublicEntity entity) { this.entity = entity; }
+
     public String getText() { return text; }
     public void setText(String text) { this.text = text; }
+
     public LocalDateTime getDate() { return date; }
     public void setDate(LocalDateTime date) { this.date = date; }
 }
-
