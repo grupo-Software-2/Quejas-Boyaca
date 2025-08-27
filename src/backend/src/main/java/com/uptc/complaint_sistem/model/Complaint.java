@@ -21,14 +21,18 @@ public class Complaint {
     @Column(nullable = false)
     private LocalDateTime date;
 
+    @Column(nullable = false)
+    private String ipAddress;
+
     public Complaint() {
         this.date = LocalDateTime.now();
     }
 
-    public Complaint(PublicEntity entity, String text) {
+    public Complaint(PublicEntity entity, String text, String ipAddress) {
         this.entity = entity;
         this.text = text;
         this.date = LocalDateTime.now();
+        this.ipAddress = ipAddress;
     }
 
     // Getters y Setters
@@ -39,5 +43,7 @@ public class Complaint {
     public void setText(String text) { this.text = text; }
     public LocalDateTime getDate() { return date; }
     public void setDate(LocalDateTime date) { this.date = date; }
+    public String getIpAddress() { return ipAddress; }
+    public void setIpAddress(String ipAddress) { this.ipAddress = ipAddress; }
 }
 
