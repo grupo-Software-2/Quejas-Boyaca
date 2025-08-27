@@ -1,0 +1,24 @@
+{
+  "builds": [
+    {
+      "src": "backend",
+      "use": "@railway/builders/maven"
+    },
+    {
+      "src": "frontend",
+      "use": "@railway/builders/node"
+    }
+  ],
+  "deploys": [
+    {
+      "src": "backend",
+      "use": "@railway/builders/maven",
+      "cmd": "mvn spring-boot:run"
+    },
+    {
+      "src": "frontend",
+      "use": "@railway/builders/node",
+      "cmd": "npm install && npm run build && npx serve -s build -l 3000"
+    }
+  ]
+}
