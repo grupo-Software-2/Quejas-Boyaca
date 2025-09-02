@@ -4,6 +4,7 @@ import ComplaintList from "./components/ComplaintList";
 import ComplaintReport from "./components/ComplaintReport";
 import CaptchaForm from "./components/CaptchaForm";
 
+
 function App() {
   // Entidades deben coincidir con los ENUM en tu backend
   const entities = [
