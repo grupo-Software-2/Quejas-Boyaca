@@ -5,6 +5,7 @@ import ComplaintReport from "./components/ComplaintReport";
 import CaptchaForm from "./components/CaptchaForm";
 
 function App() {
+  // Entidades deben coincidir con los ENUM en tu backend
   const entities = [
     "GOBERNACION_BOYACA",
     "SECRETARIA_EDUCACION",
@@ -15,7 +16,7 @@ function App() {
   ];
 
   const [currentPage, setCurrentPage] = useState("home");
-  const [captchaPassed, setCaptchaPassed] = useState(false);
+  const [captchaPassed, setCaptchaPassed] = useState(false); // ✅ agregado
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
@@ -24,10 +25,7 @@ function App() {
       {/* Botones de navegación */}
       <div style={{ marginBottom: "20px" }}>
         <button
-          onClick={() => {
-            setCurrentPage("list");
-            setCaptchaPassed(false);
-          }}
+          onClick={() => setCurrentPage("list")}
           style={{
             margin: "5px",
             padding: "10px",
@@ -42,10 +40,7 @@ function App() {
         </button>
 
         <button
-          onClick={() => {
-            setCurrentPage("form");
-            setCaptchaPassed(false);
-          }}
+          onClick={() => setCurrentPage("form")}
           style={{
             margin: "5px",
             padding: "10px",
@@ -62,7 +57,7 @@ function App() {
         <button
           onClick={() => {
             setCurrentPage("report");
-            setCaptchaPassed(false); // obliga a pasar captcha cada vez
+            setCaptchaPassed(false); // ✅ resetea al entrar a reportes
           }}
           style={{
             margin: "5px",
@@ -89,7 +84,7 @@ function App() {
       {currentPage === "report" && !captchaPassed && (
         <div>
           <h3>⚠️ Verifica que no eres un robot antes de ver el reporte</h3>
-          <CaptchaForm onVerify={setCaptchaPassed} />
+          <CaptchaForm onVerify={() => setCaptchaPassed(true)} />
         </div>
       )}
       {currentPage === "report" && captchaPassed && (
