@@ -115,6 +115,15 @@ function App() {
       {currentPage === "home" && <p>👈 Selecciona una opción para comenzar.</p>}
     </div>
   );
+
+  function App() {
+    return (
+      <div>
+        <h1>Mi App con Captcha</h1>
+        <CaptchaForm />
+      </div>
+    );
+  }
 }
 
 export default App;
