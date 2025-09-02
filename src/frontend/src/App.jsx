@@ -2,7 +2,7 @@ import { useState } from "react";
 import ComplaintForm from "./components/ComplaintForm";
 import ComplaintList from "./components/ComplaintList";
 import ComplaintReport from "./components/ComplaintReport";
-import ReCAPTCHA from "react-google-recaptcha";
+import ReCAPTCHA from "./components/CaptchaForm";
 
 function App() {
   // Entidades deben coincidir con los ENUM en tu backend
