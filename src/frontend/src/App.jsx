@@ -25,7 +25,10 @@ function App() {
       {/* Botones de navegación */}
       <div style={{ marginBottom: "20px" }}>
         <button
-          onClick={() => setCurrentPage("list")}
+          onClick={() => {
+            setCurrentPage("list");
+            setCaptchaPassed(false);
+          }}
           style={{
             margin: "5px",
             padding: "10px",
@@ -40,7 +43,10 @@ function App() {
         </button>
 
         <button
-          onClick={() => setCurrentPage("form")}
+          onClick={() => {
+            setCurrentPage("form");
+            setCaptchaPassed(false);
+          }}
           style={{
             margin: "5px",
             padding: "10px",
@@ -57,8 +63,7 @@ function App() {
         <button
           onClick={() => {
             setCurrentPage("report");
-            setCaptchaPassed(false);
-
+            setCaptchaPassed(false); // obliga a pasar captcha cada vez
           }}
           style={{
             margin: "5px",
@@ -85,7 +90,7 @@ function App() {
       {currentPage === "report" && !captchaPassed && (
         <div>
           <h3>⚠️ Verifica que no eres un robot antes de ver el reporte</h3>
-          <CaptchaForm onVerify={() => setCaptchaPassed(true)} />
+          <CaptchaForm onVerify={setCaptchaPassed} />
         </div>
       )}
       {currentPage === "report" && captchaPassed && (
