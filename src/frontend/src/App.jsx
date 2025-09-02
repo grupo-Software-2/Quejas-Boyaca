@@ -4,6 +4,7 @@ import ComplaintList from "./components/ComplaintList";
 import ComplaintReport from "./components/ComplaintReport";
 import CaptchaForm from "./components/CaptchaForm";
 
+
 function App() {
   const entities = [
     "GOBERNACION_BOYACA",
