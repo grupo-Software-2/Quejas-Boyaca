@@ -2,10 +2,10 @@ import { useState } from "react";
 import ComplaintForm from "./components/ComplaintForm";
 import ComplaintList from "./components/ComplaintList";
 import ComplaintReport from "./components/ComplaintReport";
-import CaptchaForm from "./components/CaptchaForm";
-
+import ReCAPTCHA from "./components/CaptchaForm";
 
 function App() {
+  // Entidades deben coincidir con los ENUM en tu backend
   const entities = [
     "GOBERNACION_BOYACA",
     "SECRETARIA_EDUCACION",
@@ -17,6 +17,24 @@ function App() {
 
   const [currentPage, setCurrentPage] = useState("home");
   const [captchaPassed, setCaptchaPassed] = useState(false);
+
+  const handleCaptcha = async (token) => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/verify-captcha`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCaptchaPassed(true);
+      } else {
+        alert("Captcha inválido. Intenta de nuevo.");
+      }
+    } catch (err) {
+      console.error("Error verificando captcha:", err);
+    }
+  };
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
@@ -63,7 +81,7 @@ function App() {
         <button
           onClick={() => {
             setCurrentPage("report");
-            setCaptchaPassed(false); // obliga a pasar captcha cada vez
+            setCaptchaPassed(false); // cada vez que entre al reporte debe validar captcha
           }}
           style={{
             margin: "5px",
@@ -82,23 +100,30 @@ function App() {
       {/* Contenido dinámico */}
       {currentPage === "list" && <ComplaintList entities={entities} />}
       {currentPage === "form" && (
-        <ComplaintForm
-          entities={entities}
-          onComplaintAdded={() => setCurrentPage("list")}
-        />
+        <ComplaintForm entities={entities} onComplaintAdded={() => setCurrentPage("list")} />
       )}
       {currentPage === "report" && !captchaPassed && (
         <div>
           <h3>⚠️ Verifica que no eres un robot antes de ver el reporte</h3>
-          <CaptchaForm onVerify={setCaptchaPassed} />
+          <ReCAPTCHA
+            sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY} // clave del sitio
+            onChange={handleCaptcha}
+          />
         </div>
       )}
-      {currentPage === "report" && captchaPassed && (
-        <ComplaintReport entities={entities} />
-      )}
+      {currentPage === "report" && captchaPassed && <ComplaintReport entities={entities} />}
       {currentPage === "home" && <p>👈 Selecciona una opción para comenzar.</p>}
     </div>
   );
+
+  function App() {
+    return (
+      <div>
+        <h1>Mi App con Captcha</h1>
+        <CaptchaForm />
+      </div>
+    );
+  }
 }
 
 export default App;
