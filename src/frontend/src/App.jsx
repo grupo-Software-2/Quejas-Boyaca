@@ -4,8 +4,8 @@ import ComplaintList from "./components/ComplaintList";
 import ComplaintReport from "./components/ComplaintReport";
 import CaptchaForm from "./components/CaptchaForm";
 
-
 function App() {
+  // Entidades deben coincidir con los ENUM en tu backend
   const entities = [
     "GOBERNACION_BOYACA",
     "SECRETARIA_EDUCACION",
@@ -16,7 +16,6 @@ function App() {
   ];
 
   const [currentPage, setCurrentPage] = useState("home");
-  const [captchaPassed, setCaptchaPassed] = useState(false);
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
@@ -93,6 +92,15 @@ function App() {
       {currentPage === "home" && <p>👈 Selecciona una opción para comenzar.</p>}
     </div>
   );
+
+  function App() {
+    return (
+      <div>
+        <h1>Mi App con Captcha</h1>
+        <CaptchaForm />
+      </div>
+    );
+  }
 }
 
 export default App;
