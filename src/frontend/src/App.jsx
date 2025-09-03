@@ -6,7 +6,6 @@ import CaptchaForm from "./components/CaptchaForm";
 
 
 function App() {
-  // Entidades deben coincidir con los ENUM en tu backend
   const entities = [
     "GOBERNACION_BOYACA",
     "SECRETARIA_EDUCACION",
@@ -17,7 +16,7 @@ function App() {
   ];
 
   const [currentPage, setCurrentPage] = useState("home");
-  const [captchaPassed, setCaptchaPassed] = useState(false); // ✅ agregado
+  const [captchaPassed, setCaptchaPassed] = useState(false);
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
