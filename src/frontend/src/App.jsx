@@ -54,7 +54,10 @@ function App() {
         </button>
 
         <button
-          onClick={() => setCurrentPage("report")}
+          onClick={() => {
+            setCurrentPage("report");
+            setCaptchaPassed(false);
+          }}
           style={{
             margin: "5px",
             padding: "10px",
@@ -71,8 +74,21 @@ function App() {
 
       {/* Contenido dinámico */}
       {currentPage === "list" && <ComplaintList entities={entities} />}
-      {currentPage === "form" && <ComplaintForm entities={entities} onComplaintAdded={() => setCurrentPage("list")} />}
-      {currentPage === "report" && <ComplaintReport entities={entities} />}
+      {currentPage === "form" && (
+        <ComplaintForm
+          entities={entities}
+          onComplaintAdded={() => setCurrentPage("list")}
+        />
+      )}
+      {currentPage === "report" && !captchaPassed && (
+        <div>
+          <h3>⚠️ Verifica que no eres un robot antes de ver el reporte</h3>
+          <CaptchaForm onVerify={() => setCaptchaPassed(true)} />
+        </div>
+      )}
+      {currentPage === "report" && captchaPassed && (
+        <ComplaintReport entities={entities} />
+      )}
       {currentPage === "home" && <p>👈 Selecciona una opción para comenzar.</p>}
     </div>
   );
