@@ -39,7 +39,7 @@ const CaptchaForm = ({ onVerify }) => {
     <form onSubmit={handleSubmit}>
       <ReCAPTCHA
         sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
-        onChange={(token) => setCaptchaToken(token)}
+        onChange={setCaptchaToken}
       />
       <button type="submit">Enviar</button>
     </form>

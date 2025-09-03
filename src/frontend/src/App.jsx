@@ -58,7 +58,7 @@ function App() {
         <button
           onClick={() => {
             setCurrentPage("report");
-            setCaptchaPassed(false); // ✅ resetea al entrar a reportes
+            setCaptchaPassed(false);
           }}
           style={{
             margin: "5px",
