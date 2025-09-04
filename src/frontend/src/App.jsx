@@ -5,7 +5,7 @@ import ComplaintReport from "./components/ComplaintReport";
 import CaptchaForm from "./components/CaptchaForm";
 
 function App() {
-  // Entidades deben coincidir con los ENUM en tu backend
+  
   const entities = [
     "GOBERNACION_BOYACA",
     "SECRETARIA_EDUCACION",
@@ -14,6 +14,19 @@ function App() {
     "ALCALDIA_DUITAMA",
     "ALCALDIA_SOGAMOSO",
   ];
+
+  const normalizeEntityName = (entityCode) => {
+    const entityNames = {
+      "GOBERNACION_BOYACA": "Gobernación de Boyacá",
+      "SECRETARIA_EDUCACION": "Secretaría de Educación",
+      "SECRETARIA_SALUD": "Secretaría de Salud",
+      "ALCALDIA_TUNJA": "Alcaldía de Tunja",
+      "ALCALDIA_DUITAMA": "Alcaldía de Duitama",
+      "ALCALDIA_SOGAMOSO": "Alcaldía de Sogamoso",
+    };
+
+    return entityNames[entityCode] || entityCode.replace(/_/g, " ");
+  }
 
   const [currentPage, setCurrentPage] = useState("home");
 
@@ -73,10 +86,15 @@ function App() {
       </div>
 
       {/* Contenido dinámico */}
-      {currentPage === "list" && <ComplaintList entities={entities} />}
+      {currentPage === "list" && (
+        <ComplaintList 
+          entities={entities} 
+          normalizeEntityName={normalizeEntityName}
+        />)}
       {currentPage === "form" && (
         <ComplaintForm
           entities={entities}
+          normalizeEntityName={normalizeEntityName}
           onComplaintAdded={() => setCurrentPage("list")}
         />
       )}
@@ -87,20 +105,23 @@ function App() {
         </div>
       )}
       {currentPage === "report" && captchaPassed && (
-        <ComplaintReport entities={entities} />
+        <ComplaintReport 
+          entities={entities}
+          normalizeEntityName={normalizeEntityName}
+        />
       )}
       {currentPage === "home" && <p>👈 Selecciona una opción para comenzar.</p>}
     </div>
   );
 
-  function App() {
+  /*function App() {
     return (
       <div>
         <h1>Mi App con Captcha</h1>
         <CaptchaForm />
       </div>
     );
-  }
+  }*/
 }
 
 export default App;
