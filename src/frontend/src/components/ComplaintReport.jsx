@@ -6,7 +6,7 @@ function ComplaintReport({ entities }) {
 
   useEffect(() => {
     axios
-      .get("https://tallerquejas-production.up.railway.app/api/complaints")
+      .get("http://localhost:8080/api/complaints"/*"https://tallerquejas-production.up.railway.app/api/complaints"*/)
       .then((res) => setComplaints(res.data))
       .catch((err) => console.error(err));
   }, []);

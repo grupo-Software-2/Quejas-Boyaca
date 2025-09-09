@@ -13,7 +13,7 @@ function ComplaintForm({ entities, onComplaintAdded }) {
     }
 
     try {
-      const response = await axios.post("https://tallerquejas-production.up.railway.app/api/complaints", {
+      const response = await axios.post("http://localhost:8080/api/complaints"/*"https://tallerquejas-production.up.railway.app/api/complaints"*/, {
         entity,
         text,
       });
