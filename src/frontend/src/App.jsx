@@ -99,18 +99,20 @@ function App() {
           onComplaintAdded={() => setCurrentPage("list")}
         />
       )}
-      {currentPage === "report" && !captchaPassed && (
-        <div>
-          <h3>⚠️ Verifica que no eres un robot antes de ver el reporte</h3>
-          <CaptchaForm onVerify={() => setCaptchaPassed(true)} />
-        </div>
-      )}
-      {currentPage === "report" && captchaPassed && (
-        <ComplaintReport 
-          entities={entities}
-          normalizeEntityName={normalizeEntityName}
-        />
-      )}
+      {currentPage === "report" && (
+  captchaPassed ? (
+    <ComplaintReport 
+      entities={entities}
+      normalizeEntityName={normalizeEntityName}
+    />
+  ) : (
+    <div>
+      <h3>⚠️ Verifica que no eres un robot antes de ver el reporte</h3>
+      <CaptchaForm onVerify={setCaptchaPassed} />
+    </div>
+  )
+)}
+
       {currentPage === "home" && <p>👈 Selecciona una opción para comenzar.</p>}
     </div>
   );
