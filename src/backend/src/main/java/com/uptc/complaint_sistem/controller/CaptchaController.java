@@ -1,13 +1,11 @@
 package com.uptc.complaint_sistem.controller;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,34 +28,19 @@ public class CaptchaController {
 
         RestTemplate restTemplate = new RestTemplate();
 
-        // Construir request con formato application/x-www-form-urlencoded
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        // ✅ Usar MultiValueMap para form-urlencoded
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("secret", recaptchaSecret);
+        params.add("response", token);
 
-        Map<String, String> params = new HashMap<>();
-        params.put("secret", recaptchaSecret);
-        params.put("response", token);
+        Map<String, Object> googleResponse = restTemplate.postForObject(
+                verifyUrl,
+                params,
+                Map.class
+        );
 
-        HttpEntity<Map<String, String>> request = new HttpEntity<>(params, headers);
+        boolean success = googleResponse != null && Boolean.TRUE.equals(googleResponse.get("success"));
 
-        boolean success = false;
-        try {
-            ResponseEntity<Map> googleResponse = restTemplate.postForEntity(
-                    verifyUrl,
-                    request,
-                    Map.class
-            );
-
-            if (googleResponse.getBody() != null) {
-                success = Boolean.TRUE.equals(googleResponse.getBody().get("success"));
-            }
-        } catch (Exception e) {
-            System.err.println("❌ Error verificando reCAPTCHA: " + e.getMessage());
-        }
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", success);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Map.of("success", success));
     }
 }
