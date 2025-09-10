@@ -5,9 +5,8 @@ import ComplaintReport from "./components/ComplaintReport";
 import CaptchaForm from "./components/CaptchaForm";
 
 function App() {
-  // Entidades deben coincidir con los ENUM en tu backend
-  const ENTITIES = [
-
+  
+  const entities = [
     "GOBERNACION_BOYACA",
     "SECRETARIA_EDUCACION",
     "SECRETARIA_SALUD",
@@ -34,7 +33,7 @@ function App() {
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h1> Sistema de Registro de Quejas</h1>
+      <h1>📌 Sistema de Registro de Quejas</h1>
 
       {/* Botones de navegación */}
       <div style={{ marginBottom: "20px" }}>
@@ -88,24 +87,31 @@ function App() {
       </div>
 
       {/* Contenido dinámico */}
-
-      {currentPage === "list" && <ComplaintList entities={ENTITIES} />}
+      {currentPage === "list" && (
+        <ComplaintList 
+          entities={entities} 
+          normalizeEntityName={normalizeEntityName}
+        />)}
       {currentPage === "form" && (
         <ComplaintForm
-          entities={ENTITIES}
+          entities={entities}
+          normalizeEntityName={normalizeEntityName}
           onComplaintAdded={() => setCurrentPage("list")}
         />
       )}
       {currentPage === "report" && !captchaPassed && (
         <div>
-          <h3> Verifica que no eres un robot antes de ver el reporte</h3>
+          <h3>⚠️ Verifica que no eres un robot antes de ver el reporte</h3>
           <CaptchaForm onVerify={() => setCaptchaPassed(true)} />
         </div>
       )}
       {currentPage === "report" && captchaPassed && (
-        <ComplaintReport entities={ENTITIES} />
+        <ComplaintReport 
+          entities={entities}
+          normalizeEntityName={normalizeEntityName}
+        />
       )}
-      {currentPage === "home" && <p> Selecciona una opción para comenzar.</p>}
+      {currentPage === "home" && <p>👈 Selecciona una opción para comenzar.</p>}
     </div>
   );
 }
