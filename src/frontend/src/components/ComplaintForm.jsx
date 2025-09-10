@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 
-function ComplaintForm({ entities, onComplaintAdded }) {
+function ComplaintForm({ entities, onComplaintAdded, normalizeEntityName }) {
   const [entity, setEntity] = useState(entities[0]);
   const [text, setText] = useState("");
 
@@ -39,7 +39,7 @@ function ComplaintForm({ entities, onComplaintAdded }) {
       >
         {entities.map((ent, i) => (
           <option key={i} value={ent}>
-            {ent}
+            {normalizeEntityName(ent)}
           </option>
         ))}
       </select>
