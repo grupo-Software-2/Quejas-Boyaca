@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 
 const CaptchaForm = ({ onVerify }) => {
-  const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaToken, setCaptchaToken] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,7 +24,7 @@ const CaptchaForm = ({ onVerify }) => {
       const data = await res.json();
       if (data.success) {
         alert("Captcha válido ✅");
-        onVerify(true); // 🔑 habilita el reporte en App.jsx
+        onVerify(true); // habilita lógica en el padre
       } else {
         alert("Captcha inválido ❌");
         onVerify(false);
