@@ -6,7 +6,7 @@ import CaptchaForm from "./components/CaptchaForm";
 
 function App() {
   // Entidades deben coincidir con los ENUM en tu backend
-  const entities = [
+  const ENTITIES = [
     "GOBERNACION_BOYACA",
     "SECRETARIA_EDUCACION",
     "SECRETARIA_SALUD",
@@ -19,7 +19,7 @@ function App() {
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h1>📌 Sistema de Registro de Quejas</h1>
+      <h1> Sistema de Registro de Quejas</h1>
 
       {/* Botones de navegación */}
       <div style={{ marginBottom: "20px" }}>
@@ -73,23 +73,23 @@ function App() {
       </div>
 
       {/* Contenido dinámico */}
-      {currentPage === "list" && <ComplaintList entities={entities} />}
+      {currentPage === "list" && <ComplaintList entities={ENTITIES} />}
       {currentPage === "form" && (
         <ComplaintForm
-          entities={entities}
+          entities={ENTITIES}
           onComplaintAdded={() => setCurrentPage("list")}
         />
       )}
       {currentPage === "report" && !captchaPassed && (
         <div>
-          <h3>⚠️ Verifica que no eres un robot antes de ver el reporte</h3>
+          <h3> Verifica que no eres un robot antes de ver el reporte</h3>
           <CaptchaForm onVerify={() => setCaptchaPassed(true)} />
         </div>
       )}
       {currentPage === "report" && captchaPassed && (
-        <ComplaintReport entities={entities} />
+        <ComplaintReport entities={ENTITIES} />
       )}
-      {currentPage === "home" && <p>👈 Selecciona una opción para comenzar.</p>}
+      {currentPage === "home" && <p> Selecciona una opción para comenzar.</p>}
     </div>
   );
 
