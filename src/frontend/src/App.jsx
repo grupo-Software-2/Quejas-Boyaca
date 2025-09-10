@@ -16,6 +16,7 @@ function App() {
   ];
 
   const [currentPage, setCurrentPage] = useState("home");
+  const [captchaPassed, setCaptchaPassed] = useState(false); // ✅ añadido
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
@@ -56,7 +57,7 @@ function App() {
         <button
           onClick={() => {
             setCurrentPage("report");
-            setCaptchaPassed(false);
+            setCaptchaPassed(false); // ✅ ahora sí existe
           }}
           style={{
             margin: "5px",
@@ -92,15 +93,6 @@ function App() {
       {currentPage === "home" && <p>👈 Selecciona una opción para comenzar.</p>}
     </div>
   );
-
-  function App() {
-    return (
-      <div>
-        <h1>Mi App con Captcha</h1>
-        <CaptchaForm />
-      </div>
-    );
-  }
 }
 
 export default App;
