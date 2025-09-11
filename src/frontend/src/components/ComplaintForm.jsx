@@ -1,9 +1,10 @@
 import { useState } from "react";
 import axios from "axios";
 
-function ComplaintForm({ entities, onComplaintAdded }) {
+function ComplaintForm({ entities, onComplaintAdded, normalizeEntityName }) {
   const [entity, setEntity] = useState(entities[0]);
   const [text, setText] = useState("");
+  const API_URL = import.meta.env.VITE_API_BASE_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -13,7 +14,7 @@ function ComplaintForm({ entities, onComplaintAdded }) {
     }
 
     try {
-      const response = await axios.post("http://localhost:8080/api/complaints"/*"https://tallerquejas-production.up.railway.app/api/complaints"*/, {
+      const response = await axios.post(`${API_URL}/complaints`, {
         entity,
         text,
       });
@@ -39,7 +40,7 @@ function ComplaintForm({ entities, onComplaintAdded }) {
       >
         {entities.map((ent, i) => (
           <option key={i} value={ent}>
-            {ent}
+            {normalizeEntityName(ent)}
           </option>
         ))}
       </select>

@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-function ComplaintListByEntity({ entities }) {
+function ComplaintListByEntity({ entities, normalizeEntityName }) {
   const [selectedEntity, setSelectedEntity] = useState(entities[0]);
   const [complaints, setComplaints] = useState([]);
-
+  const API_URL = import.meta.env.VITE_API_URL;
+  
   useEffect(() => {
     axios
-      .get(`http://localhost:8080/api/complaints/${selectedEntity}`/*`https://tallerquejas-production.up.railway.app/api/complaints/${selectedEntity}`*/)
+      .get(`${API_URL}/complaints/${selectedEntity}`)
       .then((res) => setComplaints(res.data))
       .catch((err) => console.error(err));
   }, [selectedEntity]);
@@ -22,12 +23,12 @@ function ComplaintListByEntity({ entities }) {
       >
         {entities.map((ent, i) => (
           <option key={i} value={ent}>
-            {ent}
+            {normalizeEntityName(ent)}
           </option>
         ))}
       </select>
 
-      <h2>📑 Quejas registradas para: {selectedEntity}</h2>
+      <h2>📑 Quejas registradas para: {normalizeEntityName(selectedEntity)}</h2>
       {complaints.length === 0 ? (
         <p>No hay quejas registradas para esta entidad.</p>
       ) : (

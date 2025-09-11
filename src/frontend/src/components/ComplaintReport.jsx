@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-function ComplaintReport({ entities }) {
+function ComplaintReport({ entities, normalizeEntityName }) {
   const [complaints, setComplaints] = useState([]);
+  const API_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     axios
-      .get("http://localhost:8080/api/complaints"/*"https://tallerquejas-production.up.railway.app/api/complaints"*/)
+      .get(`${API_URL}/complaints`)
       .then((res) => setComplaints(res.data))
       .catch((err) => console.error(err));
   }, []);
@@ -29,7 +30,7 @@ function ComplaintReport({ entities }) {
         <tbody>
           {report.map((r, i) => (
             <tr key={i}>
-              <td>{r.entity}</td>
+              <td>{normalizeEntityName(r.entity)}</td>
               <td>{r.count}</td>
             </tr>
           ))}
