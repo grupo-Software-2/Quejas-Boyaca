@@ -44,6 +44,10 @@ pnpm-debug.log*
 .env.development.local
 .env.test.local
 .env.production.local
+.env.development
+
+### .properties files ###
+application-dev.properties
 
 ### OS ###
 .DS_Store

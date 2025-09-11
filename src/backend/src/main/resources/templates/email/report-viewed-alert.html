@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte Visualizado</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+            text-align: center;
+        }
+        .content {
+            padding: 25px;
+        }
+        .alert-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .info-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 3px solid #28a745;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .info-value {
+            color: #212529;
+            font-size: 14px;
+        }
+        .stats-box {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .stats-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        .stats-label {
+            color: white;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-radius: 0 0 8px 8px;
+            border-top: 1px solid #e9ecef;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .timestamp {
+            color: #6c757d;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🔍 Reporte Visualizado</h1>
+        <p>Alerta de Acceso al Sistema de Quejas</p>
+    </div>
+
+    <div class="content">
+        <div class="alert-box">
+            <h3>📊 Un usuario ha accedido al reporte de quejas</h3>
+            <p>Se ha registrado una nueva visualización del panel de estadísticas.</p>
+        </div>
+
+        <div class="stats-box">
+            <div class="stats-number" th:text="${notification.totalComplaints}">0</div>
+            <div class="stats-label">Quejas Totales Visualizadas</div>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">📅 Fecha y Hora</div>
+                <div class="info-value" th:text="${viewedAtFormatted}">Fecha</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">🌐 Dirección IP</div>
+                <div class="info-value" th:text="${notification.ipAddress}">IP</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">💻 Navegador</div>
+                <div class="info-value" th:text="${notification.browserInfo}">Browser</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">📋 Tipo de Reporte</div>
+                <div class="info-value" th:text="${notification.reportType.replace('_', ' ')}">Report Type</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 25px;">
+            <h4>🛡️ Información de Seguridad:</h4>
+            <ul style="color: #6c757d; font-size: 14px;">
+                <li>Esta alerta se genera automáticamente cada vez que alguien accede al reporte</li>
+                <li>Permite monitorear el acceso a información sensible del sistema</li>
+                <li>Si detecta actividad sospechosa, contacte al administrador del sistema</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer">
+        <a href="https://tallerquejas-production.up.railway.app/" class="btn">
+            🔗 Acceder al Sistema
+        </a>
+        <div class="timestamp">
+            <p>Sistema de Alertas Automático - Boyacá</p>
+            <p th:text="'Generado el ' + ${viewedAtFormatted}">Timestamp</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -4,6 +4,7 @@ import axios from "axios";
 function ComplaintForm({ entities, onComplaintAdded }) {
   const [entity, setEntity] = useState(entities[0]);
   const [text, setText] = useState("");
+  const API_URL = import.meta.env.VITE_API_BASE_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -13,7 +14,7 @@ function ComplaintForm({ entities, onComplaintAdded }) {
     }
 
     try {
-      const response = await axios.post("https://tallerquejas-production.up.railway.app/api/complaints", {
+      const response = await axios.post(`${API_URL}/complaints`, {
         entity,
         text,
       });
