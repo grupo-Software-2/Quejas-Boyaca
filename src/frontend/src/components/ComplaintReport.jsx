@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-function ComplaintReport({ entities }) {
+function ComplaintReport({ entities, normalizeEntityName }) {
   const [complaints, setComplaints] = useState([]);
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -30,7 +30,7 @@ function ComplaintReport({ entities }) {
         <tbody>
           {report.map((r, i) => (
             <tr key={i}>
-              <td>{r.entity}</td>
+              <td>{normalizeEntityName(r.entity)}</td>
               <td>{r.count}</td>
             </tr>
           ))}

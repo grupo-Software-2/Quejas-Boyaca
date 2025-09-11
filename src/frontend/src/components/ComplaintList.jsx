@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-function ComplaintListByEntity({ entities }) {
+function ComplaintListByEntity({ entities, normalizeEntityName }) {
   const [selectedEntity, setSelectedEntity] = useState(entities[0]);
   const [complaints, setComplaints] = useState([]);
   const API_URL = import.meta.env.VITE_API_URL;
@@ -23,12 +23,12 @@ function ComplaintListByEntity({ entities }) {
       >
         {entities.map((ent, i) => (
           <option key={i} value={ent}>
-            {ent}
+            {normalizeEntityName(ent)}
           </option>
         ))}
       </select>
 
-      <h2>📑 Quejas registradas para: {selectedEntity}</h2>
+      <h2>📑 Quejas registradas para: {normalizeEntityName(selectedEntity)}</h2>
       {complaints.length === 0 ? (
         <p>No hay quejas registradas para esta entidad.</p>
       ) : (
