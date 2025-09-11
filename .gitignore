@@ -49,6 +49,7 @@ pnpm-debug.log*
 
 ### .properties files ###
 application-dev.properties
+application-prod.properties
 
 ### OS ###
 .DS_Store
