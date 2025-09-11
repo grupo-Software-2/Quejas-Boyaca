@@ -4,10 +4,11 @@ import axios from "axios";
 function ComplaintListByEntity({ entities, normalizeEntityName }) {
   const [selectedEntity, setSelectedEntity] = useState(entities[0]);
   const [complaints, setComplaints] = useState([]);
-
+  const API_URL = import.meta.env.VITE_API_URL;
+  
   useEffect(() => {
     axios
-      .get(`https://tallerquejas-production.up.railway.app/api/complaints/${selectedEntity}`)
+      .get(`${API_URL}/complaints/${selectedEntity}`)
       .then((res) => setComplaints(res.data))
       .catch((err) => console.error(err));
   }, [selectedEntity]);
