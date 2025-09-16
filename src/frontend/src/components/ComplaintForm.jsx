@@ -14,7 +14,7 @@ function ComplaintForm({ entities, onComplaintAdded, normalizeEntityName }) {
     }
 
     try {
-      const response = await axios.post(`${API_URL}/complaints`, {
+      const response = await axios.post(`${API_URL}/api/complaints`, {
         entity,
         text,
       });
