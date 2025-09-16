@@ -8,7 +8,7 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
   
   useEffect(() => {
     axios
-      .get(`${API_URL}/complaints/${selectedEntity}`)
+      .get(`${API_URL}/api/complaints/${selectedEntity}`)
       .then((res) => setComplaints(res.data))
       .catch((err) => console.error(err));
   }, [selectedEntity]);
