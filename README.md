@@ -3,8 +3,13 @@
 El sistema permite **registrar quejas relacionadas con entidades públicas de la región de Boyacá**,  
 visualizar las quejas asociadas a cada entidad y **generar reportes detallados** por institución.  
 
-🔗 **Enlace al despliegue:** [Proyecto Quejas-Boyacá](https://tallerquejas-production.up.railway.app/)
+🔗 **Enlace al despliegue:** [Proyecto Quejas-Boyacá](https://taller-quejas.vercel.app/)
 
+## Despliegue
+
+Frontend - Vercel
+Backend - Koyeb
+Database - Render
 ---
 
 ## 🚀 Tecnologías
