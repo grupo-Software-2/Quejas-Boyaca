@@ -3,7 +3,7 @@ import axios from "axios";
 
 function ComplaintReport({ entities, normalizeEntityName }) {
   const [complaints, setComplaints] = useState([]);
-  const API_URL = import.meta.env.VITE_API_BASE_URL;
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     axios
