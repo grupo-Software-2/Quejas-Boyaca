@@ -14,7 +14,7 @@ import java.util.List;
 @RequestMapping("/api/complaints")
 @CrossOrigin(origins = {
         "http://localhost:5173",
-        "https://tallerquejas-production.up.railway.app"}) // permitir conexión desde tu app React
+        "https://taller-quejas.vercel.app"}) // permitir conexión desde tu app React
 public class ComplaintController {
 
     private final ComplaintService service;
