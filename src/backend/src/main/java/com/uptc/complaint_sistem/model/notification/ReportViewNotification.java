@@ -25,6 +25,41 @@ public class ReportViewNotification {
         return new Builder();
     }
 
+    // Getters
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public LocalDateTime getViewedAt() {
+        return viewedAt;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public int getTotalComplaints() {
+        return totalComplaints;
+    }
+
+    public String getReportType() {
+        return reportType;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public String getBrowserInfo() {
+        if (userAgent == null) return "Desconocido";
+
+        if (userAgent.contains("Chrome")) return "Chrome";
+        if (userAgent.contains("Firefox")) return "Firefox";
+        if (userAgent.contains("Safari")) return "Safari";
+        if (userAgent.contains("Edge")) return "Edge";
+        return "Otro navegador";
+    }
+
     public static class Builder {
         private String ipAddress;
         private LocalDateTime viewedAt;
@@ -66,23 +101,5 @@ public class ReportViewNotification {
         public ReportViewNotification build() {
             return new ReportViewNotification(this);
         }
-    }
-
-    // Getters
-    public String getIpAddress() { return ipAddress; }
-    public LocalDateTime getViewedAt() { return viewedAt; }
-    public String getUserAgent() { return userAgent; }
-    public int getTotalComplaints() { return totalComplaints; }
-    public String getReportType() { return reportType; }
-    public String getLocation() { return location; }
-
-    public String getBrowserInfo() {
-        if (userAgent == null) return "Desconocido";
-
-        if (userAgent.contains("Chrome")) return "Chrome";
-        if (userAgent.contains("Firefox")) return "Firefox";
-        if (userAgent.contains("Safari")) return "Safari";
-        if (userAgent.contains("Edge")) return "Edge";
-        return "Otro navegador";
     }
 }

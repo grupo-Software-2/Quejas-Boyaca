@@ -1,10 +1,9 @@
 import { useState } from "react";
-import axios from "axios";
+import { complaintsAPI } from "../services/api";
 
 function ComplaintForm({ entities, onComplaintAdded, normalizeEntityName }) {
   const [entity, setEntity] = useState(entities[0]);
   const [text, setText] = useState("");
-  const API_URL = import.meta.env.VITE_API_BASE_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -14,15 +13,13 @@ function ComplaintForm({ entities, onComplaintAdded, normalizeEntityName }) {
     }
 
     try {
-      const response = await axios.post(`${API_URL}/api/complaints`, {
+      const response = await complaintsAPI.createComplaint ({
         entity,
         text,
       });
 
       alert("✅ Queja registrada con éxito.");
       setText("");
-
-      // notificar al padre
       onComplaintAdded(response.data);
     } catch (error) {
       console.error(error);

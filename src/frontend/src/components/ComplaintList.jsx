@@ -1,14 +1,12 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import { complaintsAPI  } from "../services/api";
 
 function ComplaintListByEntity({ entities, normalizeEntityName }) {
   const [selectedEntity, setSelectedEntity] = useState(entities[0]);
   const [complaints, setComplaints] = useState([]);
-  const API_URL = import.meta.env.VITE_API_URL;
   
   useEffect(() => {
-    axios
-      .get(`${API_URL}/api/complaints/${selectedEntity}`)
+    complaintsAPI.getComplaintsByEntity(selectedEntity)
       .then((res) => setComplaints(res.data))
       .catch((err) => console.error(err));
   }, [selectedEntity]);

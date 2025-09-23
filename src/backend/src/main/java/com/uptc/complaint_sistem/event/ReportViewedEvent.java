@@ -1,6 +1,7 @@
 package com.uptc.complaint_sistem.event;
 
 import org.springframework.context.ApplicationEvent;
+
 import java.time.LocalDateTime;
 
 public class ReportViewedEvent extends ApplicationEvent {
@@ -21,9 +22,23 @@ public class ReportViewedEvent extends ApplicationEvent {
     }
 
     // Getters
-    public String getUserIpAddress() { return userIpAddress; }
-    public LocalDateTime getViewedAt() { return viewedAt; }
-    public String getUserAgent() { return userAgent; }
-    public int getTotalComplaints() { return totalComplaints; }
-    public String getReportType() { return reportType; }
+    public String getUserIpAddress() {
+        return userIpAddress;
+    }
+
+    public LocalDateTime getViewedAt() {
+        return viewedAt;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public int getTotalComplaints() {
+        return totalComplaints;
+    }
+
+    public String getReportType() {
+        return reportType;
+    }
 }
