@@ -2,7 +2,7 @@ package com.uptc.complaint_sistem.model;
 
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonBackReference; // Importa esta clase
+import com.fasterxml.jackson.annotation.JsonBackReference; 
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,7 +31,7 @@ public class Answer {
     // Relación de muchos a uno con Complaint
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "complaint_id", nullable = false)
-    @JsonBackReference // <-- ¡Aquí está la solución!
+    @JsonBackReference 
     private Complaint complaint;
 
     // Constructores, Getters y Setters
