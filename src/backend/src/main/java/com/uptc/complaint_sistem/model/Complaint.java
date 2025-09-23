@@ -1,5 +1,5 @@
 package com.uptc.complaint_sistem.model;
-
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
