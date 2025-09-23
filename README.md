@@ -7,9 +7,9 @@ visualizar las quejas asociadas a cada entidad y **generar reportes detallados**
 
 ## Despliegue
 
-Frontend - Vercel
-Backend - Koyeb
-Database - Render
+- **Frontend - Vercel**
+- **Backend - Koyeb**
+- **Database - Render**
 ---
 
 ## 🚀 Tecnologías
