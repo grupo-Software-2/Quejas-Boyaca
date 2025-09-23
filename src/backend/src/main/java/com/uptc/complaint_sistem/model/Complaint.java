@@ -1,6 +1,7 @@
 package com.uptc.complaint_sistem.model;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -36,14 +37,40 @@ public class Complaint {
     }
 
     // Getters y Setters
-    public Long getId() { return id; }
-    public PublicEntity getEntity() { return entity; }
-    public void setEntity(PublicEntity entity) { this.entity = entity; }
-    public String getText() { return text; }
-    public void setText(String text) { this.text = text; }
-    public LocalDateTime getDate() { return date; }
-    public void setDate(LocalDateTime date) { this.date = date; }
-    public String getIpAddress() { return ipAddress; }
-    public void setIpAddress(String ipAddress) { this.ipAddress = ipAddress; }
+    public Long getId() {
+        return id;
+    }
+
+    public PublicEntity getEntity() {
+        return entity;
+    }
+
+    public void setEntity(PublicEntity entity) {
+        this.entity = entity;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public LocalDateTime getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDateTime date) {
+        this.date = date;
+    }
+
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
 }
 
