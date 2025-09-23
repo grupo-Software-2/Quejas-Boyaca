@@ -14,7 +14,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // todas las rutas
-                        .allowedOrigins("https://taller-quejas.vercel.app/") // origen permitido
+                        .allowedOrigins("https://civic-hollie-quejas-boyaca-software-ii-76da7249.koyeb.app/") // url del backend
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
