@@ -13,7 +13,7 @@ import java.util.Map;
 @RequestMapping("/api")
 @CrossOrigin(origins = {
         "http://localhost:5173",
-        "https://tallerquejas-production.up.railway.app"})
+        "https://taller-quejas.vercel.app"})
 public class CaptchaController {
 
     @Value("${google.recaptcha.secret}")
