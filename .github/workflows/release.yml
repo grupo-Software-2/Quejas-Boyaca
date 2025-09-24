@@ -45,3 +45,4 @@ jobs:
         with:
           tag_name: ${{ steps.get_tag.outputs.tag }}
           generate_release_notes: true
+
