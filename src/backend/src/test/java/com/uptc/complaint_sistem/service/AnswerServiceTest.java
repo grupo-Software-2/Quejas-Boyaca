@@ -60,7 +60,10 @@ class AnswerServiceTest {
 
         // Assert
         assertNotNull(savedAnswer);
-        assertEquals(message, savedAnswer.getMessage());
+
+        // ⚠️ Cambio intencional para que falle el CI
+        assertEquals("MENSAJE_FALSO", savedAnswer.getMessage());
+
         assertEquals(complaint, savedAnswer.getComplaint());
 
         verify(complaintRepository, times(1)).findById(complaintId);
