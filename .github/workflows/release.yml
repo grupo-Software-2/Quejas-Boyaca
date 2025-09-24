@@ -30,6 +30,15 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Remove existing tag if it exists
+        run: |
+          TAG=$(node -p "require('./package.json').version")
+          if git rev-parse "v$TAG" >/dev/null 2>&1; then
+            echo "Tag v$TAG already exists, deleting..."
+            git tag -d "v$TAG"
+            git push origin :refs/tags/"v$TAG"
+          fi
+
       - name: Bump version & generate changelog
         run: npm run release
 
