@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/grupo-Software-2/TALLER_QUEJAS/compare/v1.1.0...v1.2.0) (2025-09-24)
+
+
+### Features
+
+* **QUEJAS-42:** crear sistema de changelog para el sistema ([f1a737f](https://github.com/grupo-Software-2/TALLER_QUEJAS/commit/f1a737fe7d31f007030e10caa6056bab5f9acbbd))
+
 ## 1.1.0 (2025-09-24)
 
 
