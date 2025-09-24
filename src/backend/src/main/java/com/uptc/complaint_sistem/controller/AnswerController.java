@@ -22,7 +22,7 @@ public class AnswerController {
     @PostMapping("/add")
     public ResponseEntity<Answer> addAnswer(@RequestBody Map<String, Object> payload) {
         // Extraer los datos de la solicitud
-        Long complaintId = Long.valueOf(payload.get("complaintId").toString());
+        Long complaintId = Long.valueOf(payload.get("complaint_id").toString());
         String message = payload.get("message").toString();
 
         // Llamar al servicio para procesar la lógica de negocio
