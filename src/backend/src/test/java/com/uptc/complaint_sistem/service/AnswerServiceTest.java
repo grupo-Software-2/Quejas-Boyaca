@@ -61,7 +61,7 @@ class AnswerServiceTest {
         // Assert
         assertNotNull(savedAnswer);
 
-        // ⚠️ Cambio intencional para que falle el CI
+        // Cambio intencional para que falle el CI
         assertEquals("MENSAJE_FALSO", savedAnswer.getMessage());
 
         assertEquals(complaint, savedAnswer.getComplaint());
