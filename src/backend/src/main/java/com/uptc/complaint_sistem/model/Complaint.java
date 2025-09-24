@@ -1,20 +1,8 @@
 package com.uptc.complaint_sistem.model;
+
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "complaints")
@@ -36,10 +24,6 @@ public class Complaint {
 
     @Column(nullable = false)
     private String ipAddress;
-
-    @OneToMany(mappedBy = "complaint", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private List<Answer> answers;
 
     public Complaint() {
         this.date = LocalDateTime.now();
@@ -88,12 +72,5 @@ public class Complaint {
     public void setIpAddress(String ipAddress) {
         this.ipAddress = ipAddress;
     }
-    
-    public List<Answer> getAnswers() {
-        return answers;
-    }
-
-    public void setAnswers(List<Answer> answers) {
-        this.answers = answers;
-    }
 }
+
