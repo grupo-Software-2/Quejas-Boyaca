@@ -6,9 +6,12 @@ import com.uptc.complaint_sistem.model.PublicEntity;
 import com.uptc.complaint_sistem.service.ComplaintService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/complaints")
@@ -46,6 +49,26 @@ public class ComplaintController {
         List<Complaint> complaints = service.getByEntity(entity);
         publishReportViewedEvent(request, complaints.size(), "ENTITY_REPORT" + entity.name());
         return complaints;
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteComplaint(@PathVariable Long id, @RequestBody Map<String, String> credentials) {
+        try {
+            String password = credentials.get("password");
+            if (password == null || password.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Se requiere contrasenia"));
+            }
+            service.deleteComplaint(id, password);
+            return ResponseEntity.ok().body(Map.of("message", "Queja eliminada exitosamente"));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Contrasenia incorrecta"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Queja no encontrada"));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error mal eliminar la queja"));
+        }
     }
 
     private void publishReportViewedEvent(HttpServletRequest request, int totalComplaints, String reportType) {

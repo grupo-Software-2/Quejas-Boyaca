@@ -11,7 +11,8 @@ const apiClient = axios.create({
 export const complaintsAPI = {
     getAllComplaints: () => apiClient.get('/api/complaints'),
     getComplaintsByEntity: (entity) => apiClient.get(`/api/complaints/${entity}`),
-    createComplaint: (complaintData) => apiClient.post('/api/complaints', complaintData) 
+    createComplaint: (complaintData) => apiClient.post('/api/complaints', complaintData),
+    deleteComplaint: (id, password) => apiClient.delete(`/api/complaints/delete/${id}`, { data: { password } })
 };
 
 export default apiClient;
