@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
     List<Complaint> findByEntity(PublicEntity entity);
+    List<Complaint> findByDeletedFalse();
+    List<Complaint> findByEntityAndDeletedFalse(PublicEntity entity);
 }

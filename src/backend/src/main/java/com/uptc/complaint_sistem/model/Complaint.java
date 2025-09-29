@@ -1,5 +1,4 @@
 package com.uptc.complaint_sistem.model;
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "complaints")
@@ -37,6 +37,12 @@ public class Complaint {
     @Column(nullable = false)
     private String ipAddress;
 
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean deleted;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     @OneToMany(mappedBy = "complaint", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Answer> answers;
@@ -50,6 +56,7 @@ public class Complaint {
         this.text = text;
         this.date = LocalDateTime.now();
         this.ipAddress = ipAddress;
+        this.deleted = false;
     }
 
     // Getters y Setters
@@ -95,5 +102,24 @@ public class Complaint {
 
     public void setAnswers(List<Answer> answers) {
         this.answers = answers;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+        if (deleted && this.deletedAt == null) {
+            this.deletedAt = LocalDateTime.now();
+        }
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
     }
 }
