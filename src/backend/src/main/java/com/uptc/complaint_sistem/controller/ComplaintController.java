@@ -51,7 +51,7 @@ public class ComplaintController {
         return complaints;
     }
 
-    @DeleteMapping("/{id")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteComplaint(@PathVariable Long id, @RequestBody Map<String, String> credentials) {
         try {
             String password = credentials.get("password");
