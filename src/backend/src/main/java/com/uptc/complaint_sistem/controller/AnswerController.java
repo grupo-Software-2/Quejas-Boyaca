@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin; // <-- Importación necesaria
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,7 @@ import com.uptc.complaint_sistem.service.AnswerService;
 
 @RestController
 @RequestMapping("/api/answers")
+@CrossOrigin(origins = "http://localhost:5173") // <-- SOLUCIÓN: Permite la conexión desde React
 public class AnswerController {
 
     @Autowired
@@ -22,7 +24,9 @@ public class AnswerController {
     @PostMapping("/add")
     public ResponseEntity<Answer> addAnswer(@RequestBody Map<String, Object> payload) {
         // Extraer los datos de la solicitud
-        Long complaintId = Long.valueOf(payload.get("complaint_id").toString());
+        // Nota: He corregido la clave de payload de "complaint_id" a "complaintId" 
+        // para coincidir con el frontend y el backend que usamos antes.
+        Long complaintId = Long.valueOf(payload.get("complaintId").toString()); 
         String message = payload.get("message").toString();
 
         // Llamar al servicio para procesar la lógica de negocio

@@ -1,15 +1,18 @@
 import { useState, useEffect } from "react";
 import { complaintsAPI } from "../services/api";
 import DeleteComplaintModal from "./DeleteComplaintModal";
+import AnswerSection from "./AnswerSection"; // <-- Importación necesaria para la nueva funcionalidad
 
 function ComplaintListByEntity({ entities, normalizeEntityName }) {
+  // === ESTADO DEL COMPONENTE (Variables declaradas) ===
   const [selectedEntity, setSelectedEntity] = useState(entities[0]);
-  const [complaints, setComplaints] = useState([]);
+  const [complaints, setComplaints] = useState([]); 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [complaintToDelete, setComplaintToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const loadComplaints = () => {
+    // Hace la petición al backend para obtener las quejas y sus respuestas
     complaintsAPI.getComplaintsByEntity(selectedEntity)
       .then((res) => setComplaints(res.data))
       .catch((err) => console.error(err));
@@ -40,6 +43,7 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
       setIsDeleting(false);
     }
   };
+  
   const handleCancelDelete = () => {
     setShowDeleteModal(false);
     setComplaintToDelete(null);
@@ -79,7 +83,7 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
                 <div style={{ flex: 1 }}>
-                  <strong>Queja:</strong> {c.text} <br />
+                  <strong>Queja ID {c.id}:</strong> {c.text} <br />
                   <small>📅 {new Date(c.date).toLocaleString()}</small>
                 </div>
                 <button
@@ -97,6 +101,13 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
                   🗑️ Eliminar
                 </button>
               </div>
+
+              {/* INTEGRACIÓN DE LA SECCIÓN DE RESPUESTAS */}
+              <AnswerSection
+                complaintId={c.id}
+                initialAnswers={c.answers}
+                onAnswerAdded={loadComplaints} // Recargar la lista para mostrar la nueva respuesta
+              />
             </li>
           ))}
         </ul>
