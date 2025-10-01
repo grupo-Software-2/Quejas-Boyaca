@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { complaintsAPI } from '../services/api';
 
 function AnswerSection({ complaintId, initialAnswers, onAnswerAdded }) {
-    // Usamos el estado para manejar las respuestas que se muestran
     const [answers, setAnswers] = useState(initialAnswers || []);
     const [newMessage, setNewMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -13,14 +12,11 @@ function AnswerSection({ complaintId, initialAnswers, onAnswerAdded }) {
 
         setIsSubmitting(true);
         try {
-            // Llamar a la API para crear la respuesta
             const response = await complaintsAPI.createAnswer(complaintId, newMessage);
             
-            // Actualizar la lista de respuestas localmente y limpiar el formulario
             setAnswers([...answers, response.data]);
             setNewMessage('');
             
-            // Notificar al componente padre que se añadió una respuesta
             if (onAnswerAdded) {
                 onAnswerAdded(response.data);
             }

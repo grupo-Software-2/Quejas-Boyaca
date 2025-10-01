@@ -88,11 +88,7 @@ class ComplaintServiceTest {
         assertEquals(1, result.size());
         verify(complaintRepository, times(1)).findByDeletedFalse();
     }
-    
-    // -----------------------------------------------------------------
-    // TESTS DE PAGINACIÓN
-    // -----------------------------------------------------------------
-
+  
     @Test
     void getAllPaginated_returnsPageOfComplaints() {
         Page<Complaint> expectedPage = new PageImpl<>(Arrays.asList(complaint));
@@ -119,11 +115,6 @@ class ComplaintServiceTest {
         verify(complaintRepository, times(1)).findByEntityAndDeletedFalse(TEST_ENTITY, PAGEABLE);
     }
     
-    // -----------------------------------------------------------------
-    // TESTS DE ELIMINACIÓN
-    // -----------------------------------------------------------------
-    
-    // ESTE TEST ESTABA INCOMPLETO Y CAUSABA EL ERROR VISUAL
     @Test
     void deleteComplaint_withCorrectPassword_shouldMarkAsDeleted() {
         Long id = 1L;
