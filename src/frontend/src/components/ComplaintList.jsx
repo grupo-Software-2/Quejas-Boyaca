@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import { complaintsAPI } from "../services/api";
 import DeleteComplaintModal from "./DeleteComplaintModal";
-import AnswerSection from "./AnswerSection"; // <-- Importación necesaria para la nueva funcionalidad
+import AnswerSection from "./AnswerSection"; 
 
 function ComplaintListByEntity({ entities, normalizeEntityName }) {
-  // === ESTADO DEL COMPONENTE (Variables declaradas) ===
   const [selectedEntity, setSelectedEntity] = useState(entities[0]);
   const [complaints, setComplaints] = useState([]); 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -12,7 +11,6 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const loadComplaints = () => {
-    // Hace la petición al backend para obtener las quejas y sus respuestas
     complaintsAPI.getComplaintsByEntity(selectedEntity)
       .then((res) => setComplaints(res.data))
       .catch((err) => console.error(err));
