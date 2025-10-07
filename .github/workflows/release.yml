@@ -44,10 +44,10 @@ jobs:
           echo "## Changelog" > changelog.txt
           echo "" >> changelog.txt
 
-          # Filtra solo los commits que sigan el formato esperado
+          # Filtra commits que sigan el formato PREFIX(QUEJAS-XX): Nombre
           git log ${{ env.latest_tag }}..HEAD --pretty=format:"- %s (%an)" \
-            | grep -E "^(feat|fix|hotfix|refactor|test|chore|docs|style|build|ci)/\(QUEJAS-[0-9]+\):" \
-            >> changelog.txt || echo " No hay commits válidos con el formato esperado." >> changelog.txt
+            | grep -E "^(feat|fix|hotfix|refactor|test|chore|docs|style|build|ci)\(QUEJAS-[0-9]+\):" \
+            >> changelog.txt || echo "No hay commits válidos con el formato esperado." >> changelog.txt
 
           echo "" >> changelog.txt
           cat changelog.txt
