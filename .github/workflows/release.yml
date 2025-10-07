@@ -4,17 +4,6 @@ on:
   push:
     branches:
       - 'main'
-      - 'feat/*'
-      - 'fix/*'
-      - 'hotfix/*'
-      - 'refactor/*'
-      - 'test/*'
-      - 'chore/*'
-      - 'docs/*'
-      - 'style/*'
-      - 'build/*'
-      - 'ci/*'
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -42,17 +31,12 @@ jobs:
           tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           echo "latest_tag=$tag" >> $GITHUB_ENV
 
-      - name: Generate filtered changelog
+      - name: Generate changelog
         id: changelog
         run: |
           echo "## Changelog" > changelog.txt
           echo "" >> changelog.txt
-
-          # Filtra commits que sigan el formato PREFIX(QUEJAS-XX): Nombre
-          git log ${{ env.latest_tag }}..HEAD --pretty=format:"- %s (%an)" \
-            | grep -E "^(feat|fix|hotfix|refactor|test|chore|docs|style|build|ci)\(QUEJAS-[0-9]+\):" \
-            >> changelog.txt || echo "No hay commits válidos con el formato esperado." >> changelog.txt
-
+          git log ${{ env.latest_tag }}..HEAD --pretty=format:"- %s (%an)" >> changelog.txt
           echo "" >> changelog.txt
           cat changelog.txt
 
