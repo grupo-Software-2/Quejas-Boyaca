@@ -1,56 +1,82 @@
-name: Release
+name: 🚀 Auto Release
 
 on:
   push:
     branches:
-      - main
+      - 'feat/*'
+      - 'fix/*'
+      - 'hotfix/*'
+      - 'refactor/*'
+      - 'test/*'
+      - 'chore/*'
+      - 'docs/*'
+      - 'style/*'
+      - 'build/*'
+      - 'ci/*'
+
+permissions:
+  contents: write
+  actions: read
 
 jobs:
   release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      
+
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Setup Git identity
+      - name: Set up Git
         run: |
+          git fetch --tags
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Remove existing tag if it exists
-        run: |
-          TAG=$(node -p "require('./package.json').version")
-          if git rev-parse "v$TAG" >/dev/null 2>&1; then
-            echo "Tag v$TAG already exists, deleting..."
-            git tag -d "v$TAG"
-            git push origin :refs/tags/"v$TAG"
-          fi
-
-      - name: Bump version & generate changelog
-        run: npm run release
-
-      - name: Push tags
-        run: git push origin --tags
-
       - name: Get latest tag
-        id: get_tag
-        run: echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+        id: get_latest_tag
+        run: |
+          tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "latest_tag=$tag" >> $GITHUB_ENV
+
+      - name: Generate filtered changelog
+        id: changelog
+        run: |
+          echo "## Changelog" > changelog.txt
+          echo "" >> changelog.txt
+
+          # Filtra solo los commits que sigan el formato esperado
+          git log ${{ env.latest_tag }}..HEAD --pretty=format:"- %s (%an)" \
+            | grep -E "^(feat|fix|hotfix|refactor|test|chore|docs|style|build|ci)/\(QUEJAS-[0-9]+\):" \
+            >> changelog.txt || echo " No hay commits válidos con el formato esperado." >> changelog.txt
+
+          echo "" >> changelog.txt
+          cat changelog.txt
+
+      - name: Bump version (auto increment patch)
+        id: version
+        run: |
+          latest="${{ env.latest_tag }}"
+          echo "Latest tag: $latest"
+          version=$(echo $latest | sed 's/v//')
+          IFS='.' read -r major minor patch <<< "$version"
+          new_patch=$((patch + 1))
+          new_version="v$major.$minor.$new_patch"
+          echo "new_version=$new_version" >> $GITHUB_ENV
+          echo "New version: $new_version"
+
+      - name: Create new tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git tag ${{ env.new_version }}
+          git push origin ${{ env.new_version }}
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.get_tag.outputs.tag }}
-          generate_release_notes: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ env.new_version }}
+          name: Release ${{ env.new_version }}
+          body_path: changelog.txt
+          draft: false
+          prerelease: false
