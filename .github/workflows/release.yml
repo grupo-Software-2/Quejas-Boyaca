@@ -23,31 +23,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: 🧩 Set up Git
+      - name: Set up Git
         run: |
           git fetch --tags
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: 🏷️ Get latest tag
+      - name: Get latest tag
         id: get_latest_tag
         run: |
           tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           echo "latest_tag=$tag" >> $GITHUB_ENV
 
-      - name: 📄 Generate changelog
+      - name: Generate filtered changelog
         id: changelog
         run: |
-          echo "## 📦 Changelog" > changelog.txt
+          echo "## Changelog" > changelog.txt
           echo "" >> changelog.txt
-          git log ${{ env.latest_tag }}..HEAD --pretty=format:"- %s (%an)" >> changelog.txt
+
+          # Filtra solo los commits que sigan el formato esperado
+          git log ${{ env.latest_tag }}..HEAD --pretty=format:"- %s (%an)" \
+            | grep -E "^(feat|fix|hotfix|refactor|test|chore|docs|style|build|ci)/\(QUEJAS-[0-9]+\):" \
+            >> changelog.txt || echo " No hay commits válidos con el formato esperado." >> changelog.txt
+
           echo "" >> changelog.txt
           cat changelog.txt
 
-      - name: 🧮 Bump version (auto increment patch)
+      - name: Bump version (auto increment patch)
         id: version
         run: |
           latest="${{ env.latest_tag }}"
@@ -59,14 +64,14 @@ jobs:
           echo "new_version=$new_version" >> $GITHUB_ENV
           echo "New version: $new_version"
 
-      - name: 🏷️ Create new tag
+      - name: Create new tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git tag ${{ env.new_version }}
           git push origin ${{ env.new_version }}
 
-      - name: 🚀 Create GitHub Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
