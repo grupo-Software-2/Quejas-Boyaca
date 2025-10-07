@@ -1,6 +1,6 @@
 {
   "name": "taller-quejas",
-  "version": null,
+  "version": "0.0.1",
   "devDependencies": {
     "standard-version": "^9.5.0"
   },
