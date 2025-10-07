@@ -3,16 +3,7 @@ name: Release
 on:
   push:
     branches:
-      - 'feat/*'
-      - 'fix/*'
-      - 'hotfix/*'
-      - 'refactor/*'
-      - 'test/*'
-      - 'chore/*'
-      - 'docs/*'
-      - 'style/*'
-      - 'build/*'
-      - 'ci/*'
+      - main
 
 permissions:
   contents: write
@@ -25,6 +16,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Git
         run: |
@@ -59,8 +52,13 @@ jobs:
           echo "Latest tag: $latest"
           version=$(echo $latest | sed 's/v//')
           IFS='.' read -r major minor patch <<< "$version"
-          new_patch=$((patch + 1))
-          new_version="v$major.$minor.$new_patch"
+
+          # Incrementa el patch hasta que el tag no exista
+          while git rev-parse "v$major.$minor.$patch" >/dev/null 2>&1; do
+            patch=$((patch + 1))
+          done
+
+          new_version="v$major.$minor.$patch"
           echo "new_version=$new_version" >> $GITHUB_ENV
           echo "New version: $new_version"
 
