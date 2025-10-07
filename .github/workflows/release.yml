@@ -1,9 +1,19 @@
-name: 🚀 Auto Release
+name: Release
 
 on:
   push:
     branches:
-      - main
+      - 'main'
+      - 'feat/*'
+      - 'fix/*'
+      - 'hotfix/*'
+      - 'refactor/*'
+      - 'test/*'
+      - 'chore/*'
+      - 'docs/*'
+      - 'style/*'
+      - 'build/*'
+      - 'ci/*'
 
 permissions:
   contents: write
