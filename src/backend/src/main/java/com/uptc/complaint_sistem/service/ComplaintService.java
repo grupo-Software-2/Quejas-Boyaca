@@ -1,13 +1,16 @@
 package com.uptc.complaint_sistem.service;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
 import com.uptc.complaint_sistem.model.Complaint;
 import com.uptc.complaint_sistem.model.PublicEntity;
 import com.uptc.complaint_sistem.repository.ComplaintRepository;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ComplaintService {
@@ -24,6 +27,18 @@ public class ComplaintService {
         return repository.save(complaint);
     }
 
+    // ***************************************************************
+    // MÉTODOS DE PAGINACIÓN IMPLEMENTADOS (Nuevos)
+    // ***************************************************************
+    public Page<Complaint> getAllPaginated(Pageable pageable) {
+        return repository.findByDeletedFalse(pageable); 
+    }
+
+    public Page<Complaint> getByEntityPaginated(PublicEntity entity, Pageable pageable) {
+        return repository.findByEntityAndDeletedFalse(entity, pageable); 
+    }
+
+    // Métodos antiguos (sin paginación)
     public List<Complaint> getByEntity(PublicEntity entity) {
         return repository.findByEntityAndDeletedFalse(entity);
     }
