@@ -41,13 +41,11 @@ class ComplaintServiceTest {
 
     @Test
     void saveComplaint_success() {
-        // Arrange
+
         when(complaintRepository.save(complaint)).thenReturn(complaint);
 
-        // Act
         Complaint saved = complaintService.saveComplaint(complaint);
 
-        // Assert
         assertNotNull(saved);
         assertEquals("Test complaint", saved.getText());
         assertEquals(PublicEntity.GOBERNACION_BOYACA, saved.getEntity());
@@ -56,31 +54,29 @@ class ComplaintServiceTest {
 
     @Test
     void getByEntity_returnsComplaints() {
-        // Arrange
-        List<Complaint> expectedList = Arrays.asList(complaint);
-        when(complaintRepository.findByEntity(PublicEntity.GOBERNACION_BOYACA)).thenReturn(expectedList);
 
-        // Act
+        List<Complaint> expectedList = Arrays.asList(complaint);
+        when(complaintRepository.findByEntityAndDeletedFalse(PublicEntity.GOBERNACION_BOYACA))
+                .thenReturn(expectedList);
+
         List<Complaint> result = complaintService.getByEntity(PublicEntity.GOBERNACION_BOYACA);
 
-        // Assert
         assertEquals(1, result.size());
         assertEquals(complaint, result.get(0));
-        verify(complaintRepository, times(1)).findByEntity(PublicEntity.GOBERNACION_BOYACA);
+        verify(complaintRepository, times(1))
+                .findByEntityAndDeletedFalse(PublicEntity.GOBERNACION_BOYACA);
     }
 
     @Test
-    void getAll_returnsAllComplaints() {
-        // Arrange
-        List<Complaint> expectedList = Arrays.asList(complaint);
-        when(complaintRepository.findAll()).thenReturn(expectedList);
+    void getAll_returnsActiveComplaints() {
 
-        // Act
+        List<Complaint> expectedList = Arrays.asList(complaint);
+        when(complaintRepository.findByDeletedFalse()).thenReturn(expectedList);
+
         List<Complaint> result = complaintService.getAll();
 
-        // Assert
         assertEquals(1, result.size());
         assertEquals("Test complaint", result.get(0).getText());
-        verify(complaintRepository, times(1)).findAll();
+        verify(complaintRepository, times(1)).findByDeletedFalse();
     }
 }

@@ -1,23 +1,36 @@
 package com.uptc.complaint_sistem.controller;
 
+import java.util.Map;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.uptc.complaint_sistem.event.ReportViewedEvent;
 import com.uptc.complaint_sistem.model.Complaint;
 import com.uptc.complaint_sistem.model.PublicEntity;
 import com.uptc.complaint_sistem.service.ComplaintService;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/complaints")
 @CrossOrigin(origins = {
         "http://localhost:5173",
-        "https://taller-quejas.vercel.app"}) // permitir conexión desde tu app React
+        "https://taller-quejas.vercel.app"})
 public class ComplaintController {
 
     private final ComplaintService service;
@@ -37,19 +50,35 @@ public class ComplaintController {
         return service.saveComplaint(complaint);
     }
 
+    /**
+     * Endpoint unificado para obtener quejas con paginación y filtro opcional.
+     * Por defecto, devuelve 10 quejas por página.
+     */
     @GetMapping
-    public List<Complaint> getAll(HttpServletRequest request) {
-        List<Complaint> complaints = service.getAll();
-        publishReportViewedEvent(request, complaints.size(), "GENERAL_REPORT");
-        return complaints;
+    public ResponseEntity<Page<Complaint>> getComplaintsPaginatedAndFiltered(
+        @RequestParam(required = false) PublicEntity entity, 
+        @PageableDefault(size = 10) Pageable pageable, 
+        HttpServletRequest request) {
+        
+        Page<Complaint> complaintsPage;
+
+        if (entity != null) {
+            // Filtrar por entidad y aplicar paginación
+            complaintsPage = service.getByEntityPaginated(entity, pageable);
+            publishReportViewedEvent(request, (int) complaintsPage.getTotalElements(), "ENTITY_REPORT_" + entity.name());
+        } else {
+            // Obtener todas las quejas con paginación
+            complaintsPage = service.getAllPaginated(pageable);
+            publishReportViewedEvent(request, (int) complaintsPage.getTotalElements(), "GENERAL_REPORT");
+        }
+
+        return ResponseEntity.ok(complaintsPage);
     }
 
-    @GetMapping("/{entity}")
-    public List<Complaint> getByEntity(@PathVariable PublicEntity entity, HttpServletRequest request) {
-        List<Complaint> complaints = service.getByEntity(entity);
-        publishReportViewedEvent(request, complaints.size(), "ENTITY_REPORT" + entity.name());
-        return complaints;
-    }
+    /*
+    // El método getByEntity que mapeaba a /{entity} se ha eliminado/comentado 
+    // y su funcionalidad fue absorbida por el @GetMapping unificado.
+    */
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteComplaint(@PathVariable Long id, @RequestBody Map<String, String> credentials) {
@@ -77,17 +106,16 @@ public class ComplaintController {
             String userAgent = request.getHeader("User-Agent");
 
             ReportViewedEvent event = new ReportViewedEvent(
-                    this,
-                    ipAddress,
-                    userAgent,
-                    totalComplaints,
-                    reportType
+                this,
+                ipAddress,
+                userAgent,
+                totalComplaints,
+                reportType
             );
 
             eventPublisher.publishEvent(event);
 
         } catch (Exception e) {
-            // Log error but don't break the main flow
             System.err.println("Error publishing report viewed event: " + e.getMessage());
         }
     }
@@ -100,4 +128,3 @@ public class ComplaintController {
         return request.getRemoteAddr();
     }
 }
-

@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin; 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,7 @@ import com.uptc.complaint_sistem.service.AnswerService;
 
 @RestController
 @RequestMapping("/api/answers")
+@CrossOrigin(origins = "http://localhost:5173") 
 public class AnswerController {
 
     @Autowired
@@ -21,11 +23,9 @@ public class AnswerController {
 
     @PostMapping("/add")
     public ResponseEntity<Answer> addAnswer(@RequestBody Map<String, Object> payload) {
-        // Extraer los datos de la solicitud
-        Long complaintId = Long.valueOf(payload.get("complaint_id").toString());
+        Long complaintId = Long.valueOf(payload.get("complaintId").toString()); 
         String message = payload.get("message").toString();
 
-        // Llamar al servicio para procesar la lógica de negocio
         Answer newAnswer = answerService.addAnswerToComplaint(complaintId, message);
 
         return ResponseEntity.ok(newAnswer);
