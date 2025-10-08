@@ -1,5 +1,6 @@
 package com.uptc.complaint_sistem.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -50,35 +51,19 @@ public class ComplaintController {
         return service.saveComplaint(complaint);
     }
 
-    /**
-     * Endpoint unificado para obtener quejas con paginación y filtro opcional.
-     * Por defecto, devuelve 10 quejas por página.
-     */
     @GetMapping
-    public ResponseEntity<Page<Complaint>> getComplaintsPaginatedAndFiltered(
-        @RequestParam(required = false) PublicEntity entity, 
-        @PageableDefault(size = 10) Pageable pageable, 
-        HttpServletRequest request) {
-        
-        Page<Complaint> complaintsPage;
-
-        if (entity != null) {
-            // Filtrar por entidad y aplicar paginación
-            complaintsPage = service.getByEntityPaginated(entity, pageable);
-            publishReportViewedEvent(request, (int) complaintsPage.getTotalElements(), "ENTITY_REPORT_" + entity.name());
-        } else {
-            // Obtener todas las quejas con paginación
-            complaintsPage = service.getAllPaginated(pageable);
-            publishReportViewedEvent(request, (int) complaintsPage.getTotalElements(), "GENERAL_REPORT");
-        }
-
-        return ResponseEntity.ok(complaintsPage);
+    public List<Complaint> getAllComplaints(HttpServletRequest request) {
+        List<Complaint> complaints = service.getAll();
+        publishReportViewedEvent(request, complaints.size(), "REPORTE GENERAL");
+        return complaints;
     }
 
-    /*
-    // El método getByEntity que mapeaba a /{entity} se ha eliminado/comentado 
-    // y su funcionalidad fue absorbida por el @GetMapping unificado.
-    */
+    @GetMapping("/{entity}")
+    public List<Complaint> getComplaintsByEntity(@PathVariable PublicEntity entity, HttpServletRequest request) {
+        List<Complaint> complaints = service.getByEntity(entity);
+        publishReportViewedEvent(request, complaints.size(), "REPORTE DE LA ENTIDAD" + entity.name());
+        return complaints;
+    }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteComplaint(@PathVariable Long id, @RequestBody Map<String, String> credentials) {
