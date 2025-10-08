@@ -1,16 +1,17 @@
 import { useState, useEffect, useCallback } from "react";
 import { complaintsAPI } from "../services/api";
 import DeleteComplaintModal from "./DeleteComplaintModal";
-import AnswerSection from "./AnswerSection"; 
+import AnswerSection from "./AnswerSection";
 
 function ComplaintListByEntity({ entities, normalizeEntityName }) {
   // === ESTADO DEL COMPONENTE ===
   const [selectedEntity, setSelectedEntity] = useState(entities[0]);
-  const [complaints, setComplaints] = useState([]); 
-  
+  const [allComplaints, setAllComplaints] = useState([]); // Todas las quejas para la entidad seleccionada
+  const [complaints, setComplaints] = useState([]);
+
   // ESTADO DE PAGINACIÓN
   const [page, setPage] = useState(0); // Página actual (0-indexed, como Spring)
-  const [totalPages, setTotalPages] = useState(0); 
+  const [totalPages, setTotalPages] = useState(0);
   const pageSize = 10; // Máximo de quejas por página
 
   // ESTADO DE LA INTERFAZ
@@ -22,20 +23,32 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
   // Función memorizada para cargar quejas con paginación y filtro
   const loadComplaints = useCallback(() => {
     setLoading(true);
-    // Llama a la API con la página actual, el tamaño y la entidad seleccionada
-    complaintsAPI.getComplaints(page, pageSize, selectedEntity)
+    complaintsAPI.getComplaintsByEntity(selectedEntity)
       .then((res) => {
-        // Los datos se obtienen del objeto Page de Spring
-        setComplaints(res.data.content);
-        setTotalPages(res.data.totalPages);
+        const data = res.data || [];
+        setAllComplaints(data);
+
+        // Calcular paginación en el cliente
+        const total = Math.ceil(data.length / pageSize);
+        setTotalPages(total);
+
+        // Obtener la página actual
+        const start = page * pageSize;
+        const end = start + pageSize;
+        setComplaints(data.slice(start, end));
       })
-      .catch((err) => console.error("Error al cargar quejas:", err))
+      .catch((err) => {
+        console.error("Error al cargar quejas:", err);
+        setAllComplaints([]);
+        setComplaints([]);
+        setTotalPages(0);
+      })
       .finally(() => setLoading(false));
-  }, [page, selectedEntity]); 
+  }, [selectedEntity, page]);
 
   useEffect(() => {
     loadComplaints();
-  }, [loadComplaints]); 
+  }, [loadComplaints]);
 
   // Resetear la página a 0 cada vez que se cambie la entidad de filtrado
   useEffect(() => {
@@ -54,7 +67,7 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
       setPage(page - 1);
     }
   };
-  
+
   const handlePageChange = (newPage) => {
     setPage(newPage);
   };
@@ -72,7 +85,7 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
       alert("Queja eliminada exitosamente.");
       setShowDeleteModal(false);
       setComplaintToDelete(null);
-      loadComplaints(); 
+      loadComplaints();
     } catch (error) {
       const errorMessage = error.response?.data?.error || "Error al eliminar la queja.";
       alert(errorMessage);
@@ -80,7 +93,7 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
       setIsDeleting(false);
     }
   };
-  
+
   const handleCancelDelete = () => {
     setShowDeleteModal(false);
     setComplaintToDelete(null);
@@ -102,14 +115,14 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
       </select>
 
       <h2>📑 Quejas registradas para: {normalizeEntityName(selectedEntity)}</h2>
-      
+
       {loading && <p>Cargando quejas...</p>}
-      
-      {!loading && complaints.length === 0 ? (
+
+      {!loading && (!complaints || complaints.length === 0) ? (
         <p>No hay quejas registradas para esta entidad.</p>
       ) : (
         <ul style={{ listStyle: "none", padding: 0 }}>
-          {complaints.map((c) => (
+          {complaints && complaints.map((c) => (
             <li
               key={c.id}
               style={{
@@ -142,7 +155,6 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
                 </button>
               </div>
 
-              {/* INTEGRACIÓN DE LA SECCIÓN DE RESPUESTAS */}
               <AnswerSection
                 complaintId={c.id}
                 initialAnswers={c.answers}
@@ -152,24 +164,21 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
           ))}
         </ul>
       )}
-      
-      {/* ----------------- Controles de Paginación ----------------- */}
-      {!loading && complaints.length > 0 && totalPages > 1 && (
+
+      {/* Controles de Paginación */}
+      {!loading && complaints && complaints.length > 0 && totalPages > 1 && (
         <div style={{ margin: '20px 0', textAlign: 'center' }}>
-          
-          {/* Botón Anterior */}
           <button onClick={handlePreviousPage} disabled={page === 0} style={{ marginRight: '10px' }}>
             &laquo; Anterior
           </button>
 
-          {/* Botones de Número de Página */}
           {[...Array(totalPages).keys()].map(num => (
             <button
               key={num}
               onClick={() => handlePageChange(num)}
               disabled={page === num}
-              style={{ 
-                margin: '0 5px', 
+              style={{
+                margin: '0 5px',
                 padding: '5px 10px',
                 border: page === num ? '2px solid #007bff' : '1px solid #ddd',
                 backgroundColor: page === num ? '#007bff' : 'white',
@@ -182,7 +191,6 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
             </button>
           ))}
 
-          {/* Botón Siguiente */}
           <button onClick={handleNextPage} disabled={page === totalPages - 1} style={{ marginLeft: '10px' }}>
             Siguiente &raquo;
           </button>
