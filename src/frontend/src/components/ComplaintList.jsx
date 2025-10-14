@@ -5,7 +5,7 @@ import AnswerSection from "./AnswerSection";
 
 function ComplaintListByEntity({ entities, normalizeEntityName }) {
   // === ESTADO DEL COMPONENTE ===
-  const [selectedEntity, setSelectedEntity] = useState(entities[0]);
+  const [selectedEntity, setSelectedEntity] = useState("");
   const [allComplaints, setAllComplaints] = useState([]); // Todas las quejas para la entidad seleccionada
   const [complaints, setComplaints] = useState([]);
 
@@ -22,6 +22,8 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
 
   // Función memorizada para cargar quejas con paginación y filtro
   const loadComplaints = useCallback(() => {
+    if (!selectedEntity) return;
+
     setLoading(true);
     complaintsAPI.getComplaintsByEntity(selectedEntity)
       .then((res) => {
@@ -107,6 +109,7 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
         onChange={(e) => setSelectedEntity(e.target.value)}
         style={{ margin: "10px", padding: "5px" }}
       >
+        <option value="" disabled>Seleccione una entidad</option>
         {entities.map((ent, i) => (
           <option key={i} value={ent}>
             {normalizeEntityName(ent)}
