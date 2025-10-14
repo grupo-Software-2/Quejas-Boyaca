@@ -3,9 +3,13 @@ package com.uptc.complaint_sistem.controller;
 import java.util.List;
 import java.util.Map;
 
+import com.uptc.complaint_sistem.dto.ComplaintDTO;
+import jakarta.validation.Valid;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,26 +47,79 @@ public class ComplaintController {
     }
 
     @PostMapping
-    public Complaint createComplaint(@RequestBody Complaint complaint,
-                                     @RequestHeader(value = "X-Forwarded-For", required = false) String forwardedIp,
-                                     HttpServletRequest request) {
+    public ResponseEntity<ComplaintDTO> createComplaint(
+            @Valid @RequestBody ComplaintDTO complaintDTO,
+            @RequestHeader(value = "X-Forwarded-For", required = false) String forwardedIp,
+            HttpServletRequest request) {
+
         String ipAddress = forwardedIp != null ? forwardedIp : request.getRemoteAddr();
-        complaint.setIpAddress(ipAddress);
-        return service.saveComplaint(complaint);
+        ComplaintDTO saved = service.saveComplaint(complaintDTO, ipAddress);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @GetMapping
-    public List<Complaint> getAllComplaints(HttpServletRequest request) {
-        List<Complaint> complaints = service.getAll();
+    public ResponseEntity<List<ComplaintDTO>> getAllComplaints(HttpServletRequest request) {
+        List<ComplaintDTO> complaints = service.getAll();
         publishReportViewedEvent(request, complaints.size(), "REPORTE GENERAL");
-        return complaints;
+        return ResponseEntity.ok(complaints);
+    }
+
+    @GetMapping("/paginated")
+    public ResponseEntity<Page<ComplaintDTO>> getAllComplaintsPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "date") String sortBy,
+            @RequestParam(defaultValue = "DESC") String direction,
+            HttpServletRequest request) {
+
+        Sort sort = direction.equalsIgnoreCase("ASC")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<ComplaintDTO> complaints = service.getAllPaginated(pageable);
+
+        publishReportViewedEvent(request, (int) complaints.getTotalElements(), "REPORTE GENERAL PAGINADO");
+
+        return ResponseEntity.ok(complaints);
     }
 
     @GetMapping("/{entity}")
-    public List<Complaint> getComplaintsByEntity(@PathVariable PublicEntity entity, HttpServletRequest request) {
-        List<Complaint> complaints = service.getByEntity(entity);
+    public ResponseEntity<List<ComplaintDTO>> getComplaintsByEntity(@PathVariable PublicEntity entity,
+                                                                    HttpServletRequest request) {
+
+        List<ComplaintDTO> complaints = service.getByEntity(entity);
         publishReportViewedEvent(request, complaints.size(), "REPORTE DE LA ENTIDAD" + entity.name());
-        return complaints;
+        return ResponseEntity.ok(complaints);
+    }
+
+    @GetMapping("/{entity}/paginated")
+    public ResponseEntity<Page<ComplaintDTO>> getComplaintsByEntityPaginated(
+            @PathVariable PublicEntity entity,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "date") String sortBy,
+            @RequestParam(defaultValue = "DESC") String direction,
+            HttpServletRequest request) {
+
+        Sort sort = direction.equalsIgnoreCase("ASC")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<ComplaintDTO> complaints = service.getByEntityPaginated(entity, pageable);
+
+        publishReportViewedEvent(request, (int) complaints.getTotalElements(),
+                "REPORTE DE LA ENTIDAD" + entity.name());
+
+        return ResponseEntity.ok(complaints);
+    }
+
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<ComplaintDTO> getComplaintById(@PathVariable Long id) {
+        return service.getById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/delete/{id}")

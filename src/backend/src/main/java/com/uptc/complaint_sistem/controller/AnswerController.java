@@ -1,33 +1,80 @@
 package com.uptc.complaint_sistem.controller;
 
+import java.util.List;
 import java.util.Map;
 
+import com.uptc.complaint_sistem.dto.AnswerDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin; 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.uptc.complaint_sistem.model.Answer;
 import com.uptc.complaint_sistem.service.AnswerService;
 
 @RestController
 @RequestMapping("/api/answers")
-@CrossOrigin(origins = "http://localhost:5173") 
+@CrossOrigin(origins = {
+        "http://localhost:5173",
+        "https://taller-quejas.vercel.app"})
 public class AnswerController {
 
     @Autowired
     private AnswerService answerService;
 
     @PostMapping("/add")
-    public ResponseEntity<Answer> addAnswer(@RequestBody Map<String, Object> payload) {
-        Long complaintId = Long.valueOf(payload.get("complaintId").toString()); 
-        String message = payload.get("message").toString();
+    public ResponseEntity<?> addAnswer(@RequestBody Map<String, Object> payload) {
+        try {
+            Long complaintId = Long.valueOf(payload.get("complaint_id").toString());
+            String message = payload.get("message").toString();
 
-        Answer newAnswer = answerService.addAnswerToComplaint(complaintId, message);
+            AnswerDTO newAnswer = answerService.addAnswerToComplaint(complaintId, message);
 
-        return ResponseEntity.ok(newAnswer);
+            return ResponseEntity.status(HttpStatus.CREATED).body(newAnswer);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", e.getMessage()));
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error al agregar la respuesta"));
+        }
+    }
+
+    @GetMapping("/complaint/{complaintId}")
+    public ResponseEntity<List<AnswerDTO>> getAnswersByComplaint(@PathVariable Long complaintId) {
+        try {
+            List<AnswerDTO> answers = answerService.getAnswersByComplaint(complaintId);
+            return ResponseEntity.ok(answers);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<AnswerDTO> getAnswerById(@PathVariable Long id) {
+        try {
+            AnswerDTO answer = answerService.getAnswerById(id);
+            return ResponseEntity.ok(answer);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteAnswer(@PathVariable Long id) {
+        try {
+            answerService.deleteAnswer(id);
+            return ResponseEntity.ok().body(Map.of("message", "Respuesta eliminada exitosamente"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error al eliminar la respuesta"));
+        }
     }
 }
