@@ -17,6 +17,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.uptc.complaint_sistem.dto.AnswerDTO;
+import com.uptc.complaint_sistem.mapper.AnswerMapper;
 import com.uptc.complaint_sistem.model.Answer;
 import com.uptc.complaint_sistem.model.Complaint;
 import com.uptc.complaint_sistem.model.PublicEntity;
@@ -31,6 +33,9 @@ class AnswerServiceTest {
 
     @Mock
     private ComplaintRepository complaintRepository;
+
+    @Mock
+    private AnswerMapper answerMapper;
 
     @InjectMocks
     private AnswerService answerService;
@@ -48,34 +53,35 @@ class AnswerServiceTest {
 
     @Test
     void addAnswerToComplaint_success() {
-        // Arrange
+
         Long complaintId = 1L;
         String message = "This is an answer";
+        Answer answer = new Answer(message, complaint);
+        AnswerDTO answerDTO = new AnswerDTO();
+        answerDTO.setMessage(message);
 
         when(complaintRepository.findById(complaintId)).thenReturn(Optional.of(complaint));
-        when(answerRepository.save(any(Answer.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(answerRepository.save(any(Answer.class))).thenReturn(answer);
+        when(answerMapper.toAnswerDTO(answer)).thenReturn(answerDTO);
 
-        // Act
-        Answer savedAnswer = answerService.addAnswerToComplaint(complaintId, message);
+        AnswerDTO savedAnswer = answerService.addAnswerToComplaint(complaintId, message);
 
-        // Assert
         assertNotNull(savedAnswer);
         assertEquals(message, savedAnswer.getMessage());
-        assertEquals(complaint, savedAnswer.getComplaint());
 
         verify(complaintRepository, times(1)).findById(complaintId);
         verify(answerRepository, times(1)).save(any(Answer.class));
+        verify(answerMapper, times(1)).toAnswerDTO(answer);
     }
 
     @Test
     void addAnswerToComplaint_complaintNotFound() {
-        // Arrange
+
         Long complaintId = 99L;
         String message = "This is an answer";
 
         when(complaintRepository.findById(complaintId)).thenReturn(Optional.empty());
 
-        // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> answerService.addAnswerToComplaint(complaintId, message));
 
