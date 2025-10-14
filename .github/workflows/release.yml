@@ -30,6 +30,29 @@ jobs:
         run: |
           tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           echo "latest_tag=$tag" >> $GITHUB_ENV
+          echo "Latest tag: $tag"
+
+      - name: Determine version bump type
+        id: bump_type
+        run: |
+          commits=$(git log ${{ env.latest_tag }}..HEAD --pretty=format:"%s%n%b")
+          echo "Commits since last tag:"
+          echo "$commits"
+
+          if echo "$commits" | grep -qiE "BREAKING CHANGE|!"; then
+            bump="proud"
+          elif echo "$commits" | grep -qiE "feat/"; then
+            bump="default"
+          elif echo "$commits" | grep -qiE "fix/|hotfix/"; then
+            bump="shame"
+          elif echo "$commits" | grep -qiE "refactor/|test/|chore/|docs/|style/|build/|ci/"; then
+            bump="shame"
+          else
+            bump="shame"
+          fi
+
+          echo "Detected bump type: $bump"
+          echo "bump_type=$bump" >> $GITHUB_ENV
 
       - name: Generate changelog
         id: changelog
@@ -40,18 +63,31 @@ jobs:
           echo "" >> changelog.txt
           cat changelog.txt
 
-      - name: Bump version (auto increment patch)
+      - name: Bump version automatically
         id: version
         run: |
           latest="${{ env.latest_tag }}"
+          bump="${{ env.bump_type }}"
           echo "Latest tag: $latest"
+          echo "Bump type: $bump"
+
           version=$(echo $latest | sed 's/v//')
           IFS='.' read -r major minor patch <<< "$version"
 
-          # Incrementa el patch hasta que el tag no exista
-          while git rev-parse "v$major.$minor.$patch" >/dev/null 2>&1; do
-            patch=$((patch + 1))
-          done
+          case "$bump" in
+            proud)
+              major=$((major + 1))
+              minor=0
+              patch=0
+              ;;
+            default)
+              minor=$((minor + 1))
+              patch=0
+              ;;
+            shame)
+              patch=$((patch + 1))
+              ;;
+          esac
 
           new_version="v$major.$minor.$patch"
           echo "new_version=$new_version" >> $GITHUB_ENV
@@ -69,7 +105,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ env.new_version }}
-          name: Release ${{ env.new_version }}
+          name: "Release ${{ env.new_version }}"
           body_path: changelog.txt
           draft: false
           prerelease: false
