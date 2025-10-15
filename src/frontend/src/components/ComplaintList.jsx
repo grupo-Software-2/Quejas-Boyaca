@@ -101,6 +101,21 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
     setComplaintToDelete(null);
   };
 
+  const getStatusStyle = (status) => {
+    const styles = {
+      PROCESO: { backgroundColor: '#ffc107', color: '#000' },
+      REVISION: { backgroundColor: '#17a2b8', color: 'white' },
+      CERRADA: { backgroundColor: '#28a745', color: 'white' },
+    };
+    return {
+      padding: '3px 8px',
+      borderRadius: '12px',
+      fontSize: '12px',
+      fontWeight: 'bold',
+      ...styles[status],
+    };
+  };
+
   return (
     <div>
       <label>Seleccione una entidad:</label>
@@ -139,7 +154,11 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
                 <div style={{ flex: 1 }}>
-                  <strong>Queja ID {c.id}:</strong> {c.text} <br />
+                  <div>
+                    <strong>Queja ID {c.id}:</strong>
+                    {c.status && <span style={{ marginLeft: '10px', ...getStatusStyle(c.status) }}>{c.status}</span>}
+                  </div>
+                  <p style={{ margin: '5px 0' }}>{c.text}</p>
                   <small>📅 {new Date(c.date).toLocaleString()}</small>
                 </div>
                 <button

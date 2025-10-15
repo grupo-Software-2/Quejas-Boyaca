@@ -47,8 +47,13 @@ public class Complaint {
     @JsonManagedReference
     private List<Answer> answers;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ComplaintStatus status;
+
     public Complaint() {
         this.date = LocalDateTime.now();
+        this.status = ComplaintStatus.PROCESO; // Estado por defecto
     }
 
     public Complaint(PublicEntity entity, String text, String ipAddress) {
@@ -57,6 +62,7 @@ public class Complaint {
         this.date = LocalDateTime.now();
         this.ipAddress = ipAddress;
         this.deleted = false;
+        this.status = ComplaintStatus.PROCESO; // Estado por defecto para nuevas quejas
     }
 
     // Getters y Setters
@@ -121,5 +127,13 @@ public class Complaint {
 
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    public ComplaintStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ComplaintStatus status) {
+        this.status = status;
     }
 }
