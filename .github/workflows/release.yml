@@ -39,13 +39,13 @@ jobs:
           echo "Commits since last tag:"
           echo "$commits"
 
-          if echo "$commits" | grep -qiE "BREAKING CHANGE|!"; then
+          if echo "$commits" | grep -qiE "feat/"; then
             bump="proud"
-          elif echo "$commits" | grep -qiE "feat/"; then
+          elif echo "$commits" | grep -qiE "refactor/|ci/"; then
             bump="default"
           elif echo "$commits" | grep -qiE "fix/|hotfix/"; then
             bump="shame"
-          elif echo "$commits" | grep -qiE "refactor/|test/|chore/|docs/|style/|build/|ci/"; then
+          elif echo "$commits" | grep -qiE "test/|chore/|docs/|style/|build/"; then
             bump="shame"
           else
             bump="shame"
