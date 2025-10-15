@@ -1,12 +1,14 @@
 package com.uptc.complaint_sistem.dto;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import com.uptc.complaint_sistem.model.ComplaintStatus;
 import com.uptc.complaint_sistem.model.PublicEntity;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 public class ComplaintDTO {
 
@@ -24,10 +26,11 @@ public class ComplaintDTO {
     private boolean deleted;
     private LocalDateTime deletedAt;
     private List<AnswerDTO> answers;
+    private ComplaintStatus status;
 
     public ComplaintDTO() {}
 
-    public ComplaintDTO(Long id, PublicEntity entity, String text, LocalDateTime date, String ipAddress, boolean deleted, LocalDateTime deletedAt) {
+    public ComplaintDTO(Long id, PublicEntity entity, String text, LocalDateTime date, String ipAddress, boolean deleted, LocalDateTime deletedAt, List<AnswerDTO> answers, ComplaintStatus status) {
         this.id = id;
         this.entity = entity;
         this.text = text;
@@ -35,6 +38,8 @@ public class ComplaintDTO {
         this.ipAddress = ipAddress;
         this.deleted = deleted;
         this.deletedAt = deletedAt;
+        this.answers = answers;
+        this.status = status;
     }
 
     public Long getId() {
@@ -99,5 +104,13 @@ public class ComplaintDTO {
 
     public void setAnswers(List<AnswerDTO> answers) {
         this.answers = answers;
+    }
+
+    public ComplaintStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ComplaintStatus status) {
+        this.status = status;
     }
 }
