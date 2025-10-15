@@ -13,7 +13,7 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**") // todas las rutas
+                registry.addMapping("/**")
                         .allowedOrigins("https://civic-hollie-quejas-boyaca-software-ii-76da7249.koyeb.app/") // url del backend
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")

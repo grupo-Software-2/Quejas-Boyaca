@@ -1,8 +1,7 @@
 package com.uptc.complaint_sistem.service.notification.strategy.impl;
 
-import com.uptc.complaint_sistem.model.notification.ReportViewNotification;
-import com.uptc.complaint_sistem.service.notification.strategy.EmailStrategy;
-import jakarta.mail.internet.MimeMessage;
+import java.time.format.DateTimeFormatter;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -11,7 +10,10 @@ import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.time.format.DateTimeFormatter;
+import com.uptc.complaint_sistem.model.notification.ReportViewNotification;
+import com.uptc.complaint_sistem.service.notification.strategy.EmailStrategy;
+
+import jakarta.mail.internet.MimeMessage;
 
 @Component
 public class GmailEmailStrategy implements EmailStrategy {
@@ -70,7 +72,7 @@ public class GmailEmailStrategy implements EmailStrategy {
     @Override
     public boolean isAvailable() {
         try {
-            mailSender.createMimeMessage(); // Test básico
+            mailSender.createMimeMessage(); 
             return true;
         } catch (Exception e) {
             return false;

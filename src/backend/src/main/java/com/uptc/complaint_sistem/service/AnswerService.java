@@ -27,18 +27,14 @@ public class AnswerService {
     private AnswerMapper answerMapper;
 
     public AnswerDTO addAnswerToComplaint(Long complaintId, String message) {
-        // Buscar la queja por su ID
         Complaint complaint = complaintRepository.findById(complaintId)
                 .orElseThrow(() -> new RuntimeException("Complaint not found with ID: " + complaintId));
 
-        // Actualizar el estado de la queja a "REVISION"
         complaint.setStatus(ComplaintStatus.REVISION);
-        complaintRepository.save(complaint); // Guardar explícitamente el cambio de estado
+        complaintRepository.save(complaint); 
 
-        // Crear una nueva respuesta y asociarla a la queja
         Answer answer = new Answer(message, complaint);
 
-        // Guardar la respuesta en la base de datos
         Answer savedAnswer = answerRepository.save(answer);
         return answerMapper.toAnswerDTO(savedAnswer);
     }
