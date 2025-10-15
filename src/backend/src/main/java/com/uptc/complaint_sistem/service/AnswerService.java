@@ -1,20 +1,20 @@
 package com.uptc.complaint_sistem.service;
 
-import com.uptc.complaint_sistem.dto.AnswerDTO;
-import com.uptc.complaint_sistem.mapper.AnswerMapper;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.uptc.complaint_sistem.dto.AnswerDTO;
+import com.uptc.complaint_sistem.mapper.AnswerMapper;
 import com.uptc.complaint_sistem.model.Answer;
 import com.uptc.complaint_sistem.model.Complaint;
+import com.uptc.complaint_sistem.model.ComplaintStatus;
 import com.uptc.complaint_sistem.repository.AnswerRepository;
 import com.uptc.complaint_sistem.repository.ComplaintRepository;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
-@Transactional
 public class AnswerService {
 
     @Autowired
@@ -27,35 +27,40 @@ public class AnswerService {
     private AnswerMapper answerMapper;
 
     public AnswerDTO addAnswerToComplaint(Long complaintId, String message) {
+        // Buscar la queja por su ID
         Complaint complaint = complaintRepository.findById(complaintId)
                 .orElseThrow(() -> new RuntimeException("Complaint not found with ID: " + complaintId));
 
-        Answer answer = new Answer(message, complaint);
-        Answer saved = answerRepository.save(answer);
+        // Actualizar el estado de la queja a "REVISION"
+        complaint.setStatus(ComplaintStatus.REVISION);
+        complaintRepository.save(complaint); // Guardar explícitamente el cambio de estado
 
-        return answerMapper.toAnswerDTO(saved);
+        // Crear una nueva respuesta y asociarla a la queja
+        Answer answer = new Answer(message, complaint);
+
+        // Guardar la respuesta en la base de datos
+        Answer savedAnswer = answerRepository.save(answer);
+        return answerMapper.toAnswerDTO(savedAnswer);
     }
 
-    @Transactional(readOnly = true)
     public List<AnswerDTO> getAnswersByComplaint(Long complaintId) {
         Complaint complaint = complaintRepository.findById(complaintId)
-                .orElseThrow(() -> new RuntimeException("Queja no encontrada con ID: " +  complaintId));
+                .orElseThrow(() -> new RuntimeException("Complaint not found with ID: " + complaintId));
 
-        return answerMapper.toDTOList(complaint.getAnswers());
+        return complaint.getAnswers().stream()
+                .map(answerMapper::toAnswerDTO)
+                .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public AnswerDTO getAnswerById(Long id) {
         Answer answer = answerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Respuesta no encontrada con ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Answer not found with ID: " + id));
         return answerMapper.toAnswerDTO(answer);
     }
 
-    public boolean deleteAnswer(Long id) {
-        if (!answerRepository.existsById(id)) {
-            throw new RuntimeException("Respuesta no encontrada con ID: " + id);
-        }
-        answerRepository.deleteById(id);
-        return true;
+    public void deleteAnswer(Long id) {
+        Answer answer = answerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Answer not found with ID: " + id));
+        answerRepository.delete(answer);
     }
 }

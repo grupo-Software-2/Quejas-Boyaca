@@ -21,6 +21,7 @@ import com.uptc.complaint_sistem.dto.AnswerDTO;
 import com.uptc.complaint_sistem.mapper.AnswerMapper;
 import com.uptc.complaint_sistem.model.Answer;
 import com.uptc.complaint_sistem.model.Complaint;
+import com.uptc.complaint_sistem.model.ComplaintStatus;
 import com.uptc.complaint_sistem.model.PublicEntity;
 import com.uptc.complaint_sistem.repository.AnswerRepository;
 import com.uptc.complaint_sistem.repository.ComplaintRepository;
@@ -40,7 +41,8 @@ class AnswerServiceTest {
     @InjectMocks
     private AnswerService answerService;
 
-    private Complaint complaint;
+    private Complaint complaint, complaintWithAnswer;
+    private Answer answer;
 
     @BeforeEach
     void setUp() {
@@ -56,7 +58,7 @@ class AnswerServiceTest {
 
         Long complaintId = 1L;
         String message = "This is an answer";
-        Answer answer = new Answer(message, complaint);
+        answer = new Answer(message, complaint);
         AnswerDTO answerDTO = new AnswerDTO();
         answerDTO.setMessage(message);
 
@@ -69,7 +71,10 @@ class AnswerServiceTest {
         assertNotNull(savedAnswer);
         assertEquals(message, savedAnswer.getMessage());
 
+        assertEquals(ComplaintStatus.REVISION, complaint.getStatus());
+
         verify(complaintRepository, times(1)).findById(complaintId);
+        verify(complaintRepository, times(1)).save(complaint);
         verify(answerRepository, times(1)).save(any(Answer.class));
         verify(answerMapper, times(1)).toAnswerDTO(answer);
     }
@@ -87,5 +92,30 @@ class AnswerServiceTest {
 
         assertEquals("Complaint not found with ID: " + complaintId, exception.getMessage());
         verify(answerRepository, never()).save(any(Answer.class));
+    }
+
+    @Test
+    void deleteAnswer_success() {
+        Long answerId = 1L;
+        answer = new Answer("Some answer", complaint);
+
+        when(answerRepository.findById(answerId)).thenReturn(Optional.of(answer));
+
+        answerService.deleteAnswer(answerId);
+
+        verify(answerRepository, times(1)).findById(answerId);
+        verify(answerRepository, times(1)).delete(answer);
+    }
+
+    @Test
+    void deleteAnswer_notFound() {
+        Long answerId = 99L;
+
+        when(answerRepository.findById(answerId)).thenReturn(Optional.empty());
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> answerService.deleteAnswer(answerId));
+
+        assertEquals("Answer not found with ID: " + answerId, exception.getMessage());
+        verify(answerRepository, never()).delete(any(Answer.class));
     }
 }
