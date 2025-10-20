@@ -1,10 +1,15 @@
 import { useState } from "react";
+import { useAuth } from "./context/AuthContext";
 import ComplaintForm from "./components/ComplaintForm";
 import ComplaintList from "./components/ComplaintList";
 import ComplaintReport from "./components/ComplaintReport";
 import CaptchaForm from "./components/CaptchaForm";
+import Login from "./components/Login";
+import Register from "./components/Register";
 
 function App() {
+
+  const { user, logout, loading, isAuthenticated } = useAuth();
   
   const entities = [
     "GOBERNACION_BOYACA",
@@ -30,9 +35,76 @@ function App() {
 
   const [currentPage, setCurrentPage] = useState("home");
   const [captchaPassed, setCaptchaPassed] = useState(false); // ✅ añadido
+  const [authView, setAuthView] = useState("login");
+
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        fontSize: '20px',
+        color: '#666'
+      }}>
+        Cargando...
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return authView === "login" ? (
+      <Login onSwitchToRegister={() => setAuthView("register")} />
+    ) : (
+      <Register onSwitchToLogin={() => setAuthView("login")} />
+    );
+  }
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+      {/* Barra de usuario */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '20px',
+        padding: '15px',
+        backgroundColor: '#f8f9fa',
+        borderRadius: '8px',
+        border: '1px solid #ddd'
+      }}>
+        <div style={{ color: '#000' }}>
+          <strong>👤 Usuario:</strong> {user?.username || 'Usuario'}
+          {user?.role === 'ADMIN' && (
+            <span style={{
+              marginLeft: '10px',
+              padding: '3px 8px',
+              backgroundColor: '#dc3545',
+              color: 'white',
+              borderRadius: '12px',
+              fontSize: '12px',
+              fontWeight: 'bold'
+            }}>
+              ADMIN
+            </span>
+          )}
+        </div>
+        <button
+          onClick={logout}
+          style={{
+            padding: '8px 15px',
+            backgroundColor: '#dc3545',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            fontWeight: 'bold'
+          }}
+        >
+          🚪 Cerrar Sesión
+        </button>
+      </div>
+
       <h1>📌 Sistema de Registro de Quejas</h1>
 
       {/* Botones de navegación */}
@@ -70,7 +142,7 @@ function App() {
         <button
           onClick={() => {
             setCurrentPage("report");
-            setCaptchaPassed(false); // ✅ ahora sí existe
+            setCaptchaPassed(false);
           }}
           style={{
             margin: "5px",
@@ -100,18 +172,18 @@ function App() {
         />
       )}
       {currentPage === "report" && (
-  captchaPassed ? (
-    <ComplaintReport 
-      entities={entities}
-      normalizeEntityName={normalizeEntityName}
-    />
-  ) : (
-    <div>
-      <h3>⚠️ Verifica que no eres un robot antes de ver el reporte</h3>
-      <CaptchaForm onVerify={setCaptchaPassed} />
-    </div>
-  )
-)}
+        captchaPassed ? (
+          <ComplaintReport 
+            entities={entities}
+            normalizeEntityName={normalizeEntityName}
+          />
+        ) : (
+          <div>
+            <h3>⚠️ Verifica que no eres un robot antes de ver el reporte</h3>
+            <CaptchaForm onVerify={setCaptchaPassed} />
+          </div>
+        )
+      )}
 
       {currentPage === "home" && <p>👈 Selecciona una opción para comenzar.</p>}
     </div>
