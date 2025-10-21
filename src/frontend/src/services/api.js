@@ -5,8 +5,30 @@ const apiClient = axios.create({
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
-    }
+    },
+    withCredentials: true,
 });
+
+apiClient.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            const currentPath = window.location.pathname;
+            if (!currentPath.includes('/login')) {
+                window.location.href = '/login';
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
+export const authApi = {
+    login: (credentials) => apiClient.post('/api/auth/login', credentials),
+    register: (userData) => apiClient.post('/api/auth/register', userData),
+    logout: () => apiClient.post('/api/auth/logout'),
+    getCurrentUser: () => apiClient.get('/api/auth/me'),
+    refreshSession: () => apiClient.post('/api/auth/refresh'),
+}
 
 export const complaintsAPI = {
     getComplaints: (page, size, entity) => {
