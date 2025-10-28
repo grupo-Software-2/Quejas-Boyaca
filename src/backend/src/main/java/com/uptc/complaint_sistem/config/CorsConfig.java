@@ -20,8 +20,10 @@ public class CorsConfig {
             .cors(Customizer.withDefaults())
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").authenticated()
-                .anyRequest().permitAll()
+                // Login y registro abiertos
+                .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
+                // Resto protegido
+                .anyRequest().authenticated()
             );
         return http.build();
     }
@@ -30,9 +32,10 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of("https://taller-quejas.vercel.app"));
+        config.setAllowedOrigins(List.of("https://taller-quejas.vercel.app")); // tu frontend
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
+        // Permitir todos los headers posibles para preflight
+        config.setAllowedHeaders(List.of("*"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
