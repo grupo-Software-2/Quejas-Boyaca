@@ -20,11 +20,15 @@ public class CorsConfig {
             .cors(Customizer.withDefaults())
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // Login y registro abiertos
-                .requestMatchers("/api/auth/login", "/api/auth/register","/api/verify-captcha").permitAll()
-                // Resto protegido
-                .anyRequest().authenticated()
-            );
+            .requestMatchers(
+                "/api/auth/login",
+                "/api/auth/register",
+                "/api/verify-captcha",
+                "/api/complaints",
+                "/api/complaints/*"
+            ).permitAll()
+            .anyRequest().authenticated()
+        );
         return http.build();
     }
 
