@@ -37,6 +37,21 @@ function App() {
   const [captchaPassed, setCaptchaPassed] = useState(false); // ✅ añadido
   const [authView, setAuthView] = useState("login");
 
+    useEffect(() => {
+    const handleUnauthorized = () => {
+      // Forzamos mostrar login
+      setAuthView("login");
+      setCurrentPage("home");
+    };
+
+    window.addEventListener("unauthorized", handleUnauthorized);
+
+    return () => {
+      window.removeEventListener("unauthorized", handleUnauthorized);
+    };
+  }, []);
+
+
   if (loading) {
     return (
       <div style={{

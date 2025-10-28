@@ -13,14 +13,12 @@ apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            const currentPath = window.location.pathname;
-            if (!currentPath.includes('/login')) {
-                window.location.href = '/login';
-            }
+        window.dispatchEvent(new Event("unauthorized"));
         }
         return Promise.reject(error);
     }
 );
+
 
 export const authApi = {
     login: (credentials) => apiClient.post('/api/auth/login', credentials),
