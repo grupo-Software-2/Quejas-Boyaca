@@ -20,6 +20,7 @@ public class CorsConfig {
             .cors(Customizer.withDefaults())
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/auth/**").authenticated()
                 .anyRequest().permitAll()
             );
         return http.build();
