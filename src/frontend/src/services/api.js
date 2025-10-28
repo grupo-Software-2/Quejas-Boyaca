@@ -42,20 +42,31 @@ export const authApi = {
 };
 
 // ============================
-// ENDPOINTS QUEJAS
+// ENDPOINTS QUEJAS (PUBLICAS Koyeb)
 // ============================
 export const complaintsAPI = {
-    getComplaints: (page, size, entity) => {
-        const params = { page, size };
-        if (entity) params.entity = entity;
-        return complaintsClient.get('/api/complaints', { params });
-    },
-    createComplaint: (complaintData) => complaintsClient.post('/api/complaints', complaintData),
-    deleteComplaint: (id, password) => complaintsClient.delete(`/api/complaints/delete/${id}`, { data: { password } }),
-    createAnswer: (complaintId, message) => complaintsClient.post(`/api/answers/add`, { complaintId, message }),
-    getAllComplaints: () => complaintsClient.get('/api/complaints'),
-    getComplaintsByEntity: (entity) => complaintsClient.get(`/api/complaints/${entity}`),
+  getComplaints: (page, size, entity) => {
+    const params = { page, size };
+    if (entity) params.entity = entity;
+    return complaintsClient.get('/api/complaints', { params });
+  },
+  createComplaint: (complaintData) => complaintsClient.post('/api/complaints', complaintData),
+  getAllComplaints: () => complaintsClient.get('/api/complaints'),
+  getComplaintsByEntity: (entity) => complaintsClient.get(`/api/complaints/${entity}`),
+  createAnswer: (complaintId, message) => complaintsClient.post(`/api/answers/add`, { complaintId, message }),
 };
+
+// ============================
+// OPERACIONES PROTEGIDAS (Render con authClient)
+// ============================
+export const protectedComplaintsAPI = {
+  deleteComplaint: (id, password) =>
+    authClient.delete(`/api/complaints/delete/${id}`, { data: { password } }),
+  
+  editComplaint: (id, updatedData) =>
+    authClient.put(`/api/complaints/edit/${id}`, updatedData),
+};
+
 
 // ============================
 // ENDPOINT CAPTCHA
