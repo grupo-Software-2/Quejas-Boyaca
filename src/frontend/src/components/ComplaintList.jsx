@@ -65,20 +65,17 @@ function ComplaintListByEntity({ entities, normalizeEntityName, onEdit }) {
   };
   const handlePageChange = (newPage) => setPage(newPage);
 
-  // ELIMINAR
-  const handleDeleteClick = (complaint) => {
-    setComplaintToDelete(complaint);
-    setShowDeleteModal(true);
-  };
+  // Para eliminar:
   const handleConfirmDelete = async (password) => {
     if (!complaintToDelete) return;
     setIsDeleting(true);
     try {
-      await complaintsAPI.deleteComplaint(complaintToDelete.id, password);
+      // 🔐 Llamada protegida usando authClient
+      await protectedComplaintsAPI.deleteComplaint(complaintToDelete.id, password);
       alert("Queja eliminada exitosamente.");
       setShowDeleteModal(false);
       setComplaintToDelete(null);
-      loadComplaints();
+      loadComplaints(); // recarga la lista
     } catch (error) {
       const errorMessage = error.response?.data?.error || "Error al eliminar la queja.";
       alert(errorMessage);
@@ -86,29 +83,16 @@ function ComplaintListByEntity({ entities, normalizeEntityName, onEdit }) {
       setIsDeleting(false);
     }
   };
-  const handleCancelDelete = () => {
-    setShowDeleteModal(false);
-    setComplaintToDelete(null);
-  };
 
-  // EDITAR
-  const handleEditClick = (complaint) => {
-    if (onEdit) onEdit(complaint);
-  };
-
-  const getStatusStyle = (status) => {
-    const styles = {
-      PROCESO: { backgroundColor: '#ffc107', color: '#000' },
-      REVISION: { backgroundColor: '#17a2b8', color: 'white' },
-      CERRADA: { backgroundColor: '#28a745', color: 'white' },
-    };
-    return {
-      padding: '3px 8px',
-      borderRadius: '12px',
-      fontSize: '12px',
-      fontWeight: 'bold',
-      ...styles[status],
-    };
+  // Para editar:
+  const handleEditClick = async (updatedComplaint) => {
+    try {
+      await protectedComplaintsAPI.editComplaint(updatedComplaint.id, updatedComplaint);
+      alert("Queja editada correctamente.");
+      loadComplaints();
+    } catch (error) {
+      alert(error.response?.data?.error || "Error al editar la queja.");
+    }
   };
 
   return (
