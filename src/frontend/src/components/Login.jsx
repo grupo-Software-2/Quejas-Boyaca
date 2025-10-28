@@ -63,7 +63,7 @@ export default function Login({ onSwitchToRegister, onContinueAsGuest }) {
               borderRadius: "5px",
               border: "1px solid #ccc",
               boxSizing: "border-box",
-              color: "#000"
+              color: "#ffffffff"
             }}
           />
           <input
@@ -79,7 +79,7 @@ export default function Login({ onSwitchToRegister, onContinueAsGuest }) {
               borderRadius: "5px",
               border: "1px solid #ccc",
               boxSizing: "border-box",
-              color: "#000"
+              color: "#ffffffff"
             }}
           />
           <button
