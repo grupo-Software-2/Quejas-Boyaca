@@ -61,8 +61,13 @@ export const complaintsAPI = {
 // ENDPOINTS PROTEGIDOS (Render)
 // ============================
 export const protectedComplaintsAPI = {
-  deleteComplaint: (id, password) =>
-    authClient.delete(`/api/complaints/delete/${id}`, { data: { password } }),
+  deleteComplaint: async (id, password) => {
+    // 1️⃣ Validar usuario y contraseña en Auth (Render)
+    await authClient.post(`/api/complaints/verify-password`, { id, password });
+    
+    // 2️⃣ Si pasa la validación, hacer DELETE en Koyeb (o Render puede hacerlo internamente)
+    return complaintsClient.delete(`/api/complaints/delete/${id}`);
+  },
 
   editComplaint: (id, updatedData) =>
     authClient.put(`/api/complaints/edit/${id}`, updatedData),
