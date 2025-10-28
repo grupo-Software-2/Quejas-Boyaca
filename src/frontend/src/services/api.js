@@ -1,16 +1,16 @@
 import axios from "axios";
 
 // ============================
-// BACKEND RENDER (Auth & Quejas)
+// BACKEND AUTH (Render)
 // ============================
-const renderClient = axios.create({
-    baseURL: import.meta.env.VITE_API_URL_RENDER, // Render
+const authClient = axios.create({
+    baseURL: import.meta.env.VITE_API_URL_RENDER, // AUTH
     timeout: 10000,
     headers: { "Content-Type": "application/json" },
     withCredentials: true,
 });
 
-renderClient.interceptors.response.use(
+authClient.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
@@ -21,49 +21,50 @@ renderClient.interceptors.response.use(
 );
 
 // ============================
-// BACKEND KOYEB (Captcha)
+// BACKEND APP (Quejas Koyeb)
 // ============================
-const koyebClient = axios.create({
-    baseURL: import.meta.env.VITE_API_URL_KOYEB, // Koyeb
+const complaintsClient = axios.create({
+    baseURL: import.meta.env.VITE_API_URL_KOYEB, // APP
     timeout: 10000,
     headers: { "Content-Type": "application/json" },
+    withCredentials: true,
 });
 
 // ============================
-// ENDPOINTS AUTH (Render)
+// ENDPOINTS AUTH
 // ============================
 export const authApi = {
-    login: (credentials) => renderClient.post('/api/auth/login', credentials),
-    register: (userData) => renderClient.post('/api/auth/register', userData),
-    logout: () => renderClient.post('/api/auth/logout'),
-    getCurrentUser: () => renderClient.get('/api/auth/me'),
-    refreshSession: () => renderClient.post('/api/auth/refresh'),
+    login: (credentials) => authClient.post('/api/auth/login', credentials),
+    register: (userData) => authClient.post('/api/auth/register', userData),
+    logout: () => authClient.post('/api/auth/logout'),
+    getCurrentUser: () => authClient.get('/api/auth/me'),
+    refreshSession: () => authClient.post('/api/auth/refresh'),
 };
 
 // ============================
-// ENDPOINTS QUEJAS (Render)
+// ENDPOINTS QUEJAS
 // ============================
 export const complaintsAPI = {
     getComplaints: (page, size, entity) => {
         const params = { page, size };
         if (entity) params.entity = entity;
-        return renderClient.get('/api/complaints', { params });
+        return complaintsClient.get('/api/complaints', { params });
     },
-    createComplaint: (complaintData) => renderClient.post('/api/complaints', complaintData),
-    deleteComplaint: (id, password) => renderClient.delete(`/api/complaints/delete/${id}`, { data: { password } }),
-    createAnswer: (complaintId, message) => renderClient.post(`/api/answers/add`, { complaintId, message }),
-    getAllComplaints: () => renderClient.get('/api/complaints'),
-    getComplaintsByEntity: (entity) => renderClient.get(`/api/complaints/${entity}`),
+    createComplaint: (complaintData) => complaintsClient.post('/api/complaints', complaintData),
+    deleteComplaint: (id, password) => complaintsClient.delete(`/api/complaints/delete/${id}`, { data: { password } }),
+    createAnswer: (complaintId, message) => complaintsClient.post(`/api/answers/add`, { complaintId, message }),
+    getAllComplaints: () => complaintsClient.get('/api/complaints'),
+    getComplaintsByEntity: (entity) => complaintsClient.get(`/api/complaints/${entity}`),
 };
 
 // ============================
-// ENDPOINT CAPTCHA (Koyeb)
+// ENDPOINT CAPTCHA
 // ============================
 export const captchaAPI = {
-    verifyCaptcha: (token) => koyebClient.post('/api/verify-captcha', { token }),
+    verifyCaptcha: (token) => complaintsClient.post('/api/verify-captcha', { token }),
 };
 
 // ============================
 // EXPORT
 // ============================
-export default { renderClient, koyebClient };
+export default { authClient, complaintsClient };
