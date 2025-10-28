@@ -1,4 +1,3 @@
-// src/components/ComplaintListByEntity.jsx
 import { useState, useEffect, useCallback } from "react";
 import DeleteComplaintModal from "./DeleteComplaintModal";
 import AnswerSection from "./AnswerSection";
