@@ -118,7 +118,7 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
 
   return (
     <div>
-      <label>Seleccione una entidad:</label>
+      <label style={{ color: "#000" }}>Seleccione una entidad:</label>
       <select
         value={selectedEntity}
         onChange={(e) => setSelectedEntity(e.target.value)}
@@ -132,12 +132,16 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
         ))}
       </select>
 
-      <h2>📑 Quejas registradas para: {normalizeEntityName(selectedEntity)}</h2>
+      <h2 style={{ color: "#000" }}>
+        Quejas registradas para: {normalizeEntityName(selectedEntity)}
+      </h2>
 
       {loading && <p>Cargando quejas...</p>}
 
       {!loading && (!complaints || complaints.length === 0) ? (
-        <p>No hay quejas registradas para esta entidad.</p>
+        <p style={{ color: "#000" }}>
+          No hay quejas registradas para esta entidad.
+        </p>
       ) : (
         <ul style={{ listStyle: "none", padding: 0 }}>
           {complaints && complaints.map((c) => (
@@ -148,7 +152,7 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
                 padding: "15px",
                 border: "1px solid #ddd",
                 borderRadius: "8px",
-                backgroundColor: "#f9f9f9",
+                backgroundColor: "#323232ff",
                 color: "#000",
               }}
             >
@@ -159,7 +163,7 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
                     {c.status && <span style={{ marginLeft: '10px', ...getStatusStyle(c.status) }}>{c.status}</span>}
                   </div>
                   <p style={{ margin: '5px 0' }}>{c.text}</p>
-                  <small>📅 {new Date(c.date).toLocaleString()}</small>
+                  <small>{new Date(c.date).toLocaleString()}</small>
                 </div>
                 <button
                   onClick={() => handleDeleteClick(c)}

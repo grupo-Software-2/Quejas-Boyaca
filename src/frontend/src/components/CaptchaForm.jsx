@@ -31,10 +31,10 @@ const CaptchaForm = ({ onVerify }) => {
       });
       const data = await res.json();
       if (data.success) {
-        alert("Captcha válido ✅");
+        alert("Captcha válido");
         onVerify(true);
       } else {
-        alert("Captcha inválido ❌");
+        alert("Captcha inválido");
         onVerify(false);
       }
     } catch (err) {
@@ -46,12 +46,26 @@ const CaptchaForm = ({ onVerify }) => {
   if (!siteKey) return <p>Cargando captcha...</p>;
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
       <ReCAPTCHA
         sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || ""}
         onChange={handleToken}
       />
-      <button type="submit">Enviar</button>
+      <button
+        type="submit"
+        style={{
+          marginTop: "18px",   // <-- separa el botón del captcha
+          padding: "10px 20px",
+          borderRadius: "5px",
+          border: "none",
+          backgroundColor: "#000000ff",
+          color: "white",
+          fontWeight: "bold",
+          cursor: "pointer"
+        }}
+      >
+        Enviar
+      </button>
     </form>
   );
 };
