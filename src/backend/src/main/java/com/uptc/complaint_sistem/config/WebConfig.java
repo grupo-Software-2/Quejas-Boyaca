@@ -20,7 +20,12 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authInterceptor)
-                .addPathPatterns("/api/**") // rutas protegidas
-                .excludePathPatterns("/api/verify-captcha","/login", "/public/**","/api/complaints/public/**","/api/answers/**");
+                .addPathPatterns("/api/**")
+                // Excluye rutas públicas
+                .excludePathPatterns(
+                    "/api/verify-captcha",
+                    "/api/complaints",
+                    "/api/complaints/*"
+                );
     }
 }
