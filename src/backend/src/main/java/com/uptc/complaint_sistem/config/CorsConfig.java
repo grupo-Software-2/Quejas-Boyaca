@@ -21,7 +21,7 @@ public class CorsConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 // Login y registro abiertos
-                .requestMatchers("/api/auth/login", "/api/auth/register","/api/auth/verify-captcha").permitAll()
+                .requestMatchers("/api/auth/login", "/api/auth/register","/api/verify-captcha").permitAll()
                 // Resto protegido
                 .anyRequest().authenticated()
             );
