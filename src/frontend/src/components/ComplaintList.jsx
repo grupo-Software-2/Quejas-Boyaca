@@ -1,10 +1,29 @@
-// src/components/ComplaintListByEntity.jsx
 import { useState, useEffect, useCallback } from "react";
 import DeleteComplaintModal from "./DeleteComplaintModal";
 import AnswerSection from "./AnswerSection";
-import { complaintsAPI } from "../services/api";
+import { complaintsAPI, protectedComplaintsAPI } from "../services/api";
 
-function ComplaintListByEntity({ entities, normalizeEntityName, onEdit }) {
+// Función para estilo de estado de la queja
+const getStatusStyle = (status) => {
+  switch (status) {
+    case "Pendiente":
+      return { color: "#FFA500", fontWeight: "bold" };
+    case "Resuelta":
+      return { color: "#28a745", fontWeight: "bold" };
+    case "Rechazada":
+      return { color: "#dc3545", fontWeight: "bold" };
+    default:
+      return {};
+  }
+};
+
+// Mock de ejemplo en caso de fallo de carga
+const mockComplaints = [
+  { id: 1, text: "Queja de prueba 1", date: new Date(), status: "Pendiente", answers: [] },
+  { id: 2, text: "Queja de prueba 2", date: new Date(), status: "Resuelta", answers: [] },
+];
+
+function ComplaintListByEntity({ entities, normalizeEntityName }) {
   // === ESTADO DEL COMPONENTE ===
   const [selectedEntity, setSelectedEntity] = useState("");
   const [allComplaints, setAllComplaints] = useState([]);
@@ -65,17 +84,26 @@ function ComplaintListByEntity({ entities, normalizeEntityName, onEdit }) {
   };
   const handlePageChange = (newPage) => setPage(newPage);
 
-  // Para eliminar:
+  // Funciones para eliminar queja
+  const handleDeleteClick = (complaint) => {
+    setComplaintToDelete(complaint);
+    setShowDeleteModal(true);
+  };
+
+  const handleCancelDelete = () => {
+    setComplaintToDelete(null);
+    setShowDeleteModal(false);
+  };
+
   const handleConfirmDelete = async (password) => {
     if (!complaintToDelete) return;
     setIsDeleting(true);
     try {
-      // 🔐 Llamada protegida usando authClient
       await protectedComplaintsAPI.deleteComplaint(complaintToDelete.id, password);
       alert("Queja eliminada exitosamente.");
       setShowDeleteModal(false);
       setComplaintToDelete(null);
-      loadComplaints(); // recarga la lista
+      loadComplaints();
     } catch (error) {
       const errorMessage = error.response?.data?.error || "Error al eliminar la queja.";
       alert(errorMessage);
@@ -84,7 +112,7 @@ function ComplaintListByEntity({ entities, normalizeEntityName, onEdit }) {
     }
   };
 
-  // Para editar:
+  // Función para editar queja
   const handleEditClick = async (updatedComplaint) => {
     try {
       await protectedComplaintsAPI.editComplaint(updatedComplaint.id, updatedComplaint);
@@ -118,9 +146,7 @@ function ComplaintListByEntity({ entities, normalizeEntityName, onEdit }) {
       {loading && <p>Cargando quejas...</p>}
 
       {!loading && (!complaints || complaints.length === 0) ? (
-        <p style={{ color: "#000" }}>
-          No hay quejas registradas para esta entidad.
-        </p>
+        <p style={{ color: "#000" }}>No hay quejas registradas para esta entidad.</p>
       ) : (
         <ul style={{ listStyle: "none", padding: 0 }}>
           {complaints.map((c) => (
