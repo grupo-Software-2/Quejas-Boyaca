@@ -42,7 +42,7 @@ export const authApi = {
 };
 
 // ============================
-// ENDPOINTS QUEJAS (PUBLICAS Koyeb)
+// ENDPOINTS PÚBLICOS (Koyeb)
 // ============================
 export const complaintsAPI = {
   getComplaints: (page, size, entity) => {
@@ -53,20 +53,20 @@ export const complaintsAPI = {
   createComplaint: (complaintData) => complaintsClient.post('/api/complaints', complaintData),
   getAllComplaints: () => complaintsClient.get('/api/complaints'),
   getComplaintsByEntity: (entity) => complaintsClient.get(`/api/complaints/${entity}`),
-  createAnswer: (complaintId, message) => complaintsClient.post(`/api/answers/add`, { complaintId, message }),
+  createAnswer: (complaintId, message) =>
+    complaintsClient.post(`/api/answers/add`, { complaintId, message }),
 };
 
 // ============================
-// OPERACIONES PROTEGIDAS (Render con authClient)
+// ENDPOINTS PROTEGIDOS (Render)
 // ============================
 export const protectedComplaintsAPI = {
   deleteComplaint: (id, password) =>
     authClient.delete(`/api/complaints/delete/${id}`, { data: { password } }),
-  
+
   editComplaint: (id, updatedData) =>
     authClient.put(`/api/complaints/edit/${id}`, updatedData),
 };
-
 
 // ============================
 // ENDPOINT CAPTCHA
