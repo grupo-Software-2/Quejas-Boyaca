@@ -4,41 +4,41 @@ import axios from "axios";
 // BACKEND AUTH (Render)
 // ============================
 const authClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL_RENDER, // AUTH
-  timeout: 10000,
-  headers: { "Content-Type": "application/json" },
-  withCredentials: true,
+    baseURL: import.meta.env.VITE_API_URL_RENDER, // AUTH
+    timeout: 10000,
+    headers: { "Content-Type": "application/json" },
+    withCredentials: true,
 });
 
 authClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      window.dispatchEvent(new Event("unauthorized"));
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            window.dispatchEvent(new Event("unauthorized"));
+        }
+        return Promise.reject(error);
     }
-    return Promise.reject(error);
-  }
 );
 
 // ============================
 // BACKEND APP (Quejas Koyeb)
 // ============================
 const complaintsClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL_KOYEB, // APP
-  timeout: 10000,
-  headers: { "Content-Type": "application/json" },
-  withCredentials: true,
+    baseURL: import.meta.env.VITE_API_URL_KOYEB, // APP
+    timeout: 10000,
+    headers: { "Content-Type": "application/json" },
+    withCredentials: true,
 });
 
 // ============================
 // ENDPOINTS AUTH
 // ============================
 export const authApi = {
-  login: (credentials) => authClient.post('/api/auth/login', credentials),
-  register: (userData) => authClient.post('/api/auth/register', userData),
-  logout: () => authClient.post('/api/auth/logout'),
-  getCurrentUser: () => authClient.get('/api/auth/me'),
-  refreshSession: () => authClient.post('/api/auth/refresh'),
+    login: (credentials) => authClient.post('/api/auth/login', credentials),
+    register: (userData) => authClient.post('/api/auth/register', userData),
+    logout: () => authClient.post('/api/auth/logout'),
+    getCurrentUser: () => authClient.get('/api/auth/me'),
+    refreshSession: () => authClient.post('/api/auth/refresh'),
 };
 
 // ============================
@@ -58,7 +58,7 @@ export const complaintsAPI = {
 };
 
 // ============================
-// ENDPOINTS PROTEGIDOS (Render con authClient)
+// ENDPOINTS PROTEGIDOS (Render)
 // ============================
 export const protectedComplaintsAPI = {
   deleteComplaint: (id, password) =>
@@ -67,27 +67,15 @@ export const protectedComplaintsAPI = {
   editComplaint: (id, updatedData) =>
     authClient.put(`/api/complaints/edit/${id}`, updatedData),
 };
-
-// ============================
-// OPERACIONES PROTEGIDAS (Render con authClient)
-// ============================
-export const protectedComplaintsAPI = {
-  deleteComplaint: (id, password) =>
-    authClient.delete(`/api/complaints/delete/${id}`, { data: { password } }),
-  
-  editComplaint: (id, updatedData) =>
-    authClient.put(`/api/complaints/edit/${id}`, updatedData),
-};
-
 
 // ============================
 // ENDPOINT CAPTCHA
 // ============================
 export const captchaAPI = {
-  verifyCaptcha: (token) => complaintsClient.post('/api/verify-captcha', { token }),
+    verifyCaptcha: (token) => complaintsClient.post('/api/verify-captcha', { token }),
 };
 
 // ============================
-// EXPORT POR DEFECTO
+// EXPORT
 // ============================
 export default { authClient, complaintsClient };
