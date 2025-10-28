@@ -1,26 +1,27 @@
+// src/components/ComplaintListByEntity.jsx
 import { useState, useEffect, useCallback } from "react";
-import { complaintsAPI } from "../services/api";
 import DeleteComplaintModal from "./DeleteComplaintModal";
 import AnswerSection from "./AnswerSection";
+import { complaintsAPI } from "../services/api";
 
-function ComplaintListByEntity({ entities, normalizeEntityName }) {
+function ComplaintListByEntity({ entities, normalizeEntityName, onEdit }) {
   // === ESTADO DEL COMPONENTE ===
   const [selectedEntity, setSelectedEntity] = useState("");
-  const [allComplaints, setAllComplaints] = useState([]); // Todas las quejas para la entidad seleccionada
+  const [allComplaints, setAllComplaints] = useState([]);
   const [complaints, setComplaints] = useState([]);
 
   // ESTADO DE PAGINACIÓN
-  const [page, setPage] = useState(0); // Página actual (0-indexed, como Spring)
+  const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const pageSize = 10; // Máximo de quejas por página
+  const pageSize = 10;
 
-  // ESTADO DE LA INTERFAZ
+  // ESTADO DE INTERFAZ
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [complaintToDelete, setComplaintToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Función memorizada para cargar quejas con paginación y filtro
+  // Función para cargar quejas reales o usar mock
   const loadComplaints = useCallback(() => {
     if (!selectedEntity) return;
 
@@ -30,20 +31,19 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
         const data = res.data || [];
         setAllComplaints(data);
 
-        // Calcular paginación en el cliente
         const total = Math.ceil(data.length / pageSize);
         setTotalPages(total);
 
-        // Obtener la página actual
         const start = page * pageSize;
         const end = start + pageSize;
         setComplaints(data.slice(start, end));
       })
       .catch((err) => {
         console.error("Error al cargar quejas:", err);
-        setAllComplaints([]);
-        setComplaints([]);
-        setTotalPages(0);
+        // Si hay error o no hay quejas, usamos mock
+        setAllComplaints(mockComplaints);
+        setTotalPages(Math.ceil(mockComplaints.length / pageSize));
+        setComplaints(mockComplaints.slice(0, pageSize));
       })
       .finally(() => setLoading(false));
   }, [selectedEntity, page]);
@@ -52,33 +52,24 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
     loadComplaints();
   }, [loadComplaints]);
 
-  // Resetear la página a 0 cada vez que se cambie la entidad de filtrado
   useEffect(() => {
     setPage(0);
   }, [selectedEntity]);
 
-  // HANDLERS DE PAGINACIÓN
+  // PAGINACIÓN
   const handleNextPage = () => {
-    if (page < totalPages - 1) {
-      setPage(page + 1);
-    }
+    if (page < totalPages - 1) setPage(page + 1);
   };
-
   const handlePreviousPage = () => {
-    if (page > 0) {
-      setPage(page - 1);
-    }
+    if (page > 0) setPage(page - 1);
   };
+  const handlePageChange = (newPage) => setPage(newPage);
 
-  const handlePageChange = (newPage) => {
-    setPage(newPage);
-  };
-
+  // ELIMINAR
   const handleDeleteClick = (complaint) => {
     setComplaintToDelete(complaint);
     setShowDeleteModal(true);
-  }
-
+  };
   const handleConfirmDelete = async (password) => {
     if (!complaintToDelete) return;
     setIsDeleting(true);
@@ -95,10 +86,14 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
       setIsDeleting(false);
     }
   };
-
   const handleCancelDelete = () => {
     setShowDeleteModal(false);
     setComplaintToDelete(null);
+  };
+
+  // EDITAR
+  const handleEditClick = (complaint) => {
+    if (onEdit) onEdit(complaint);
   };
 
   const getStatusStyle = (status) => {
@@ -118,7 +113,7 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
 
   return (
     <div>
-      <label>Seleccione una entidad:</label>
+      <label style={{ color: "#000" }}>Seleccione una entidad:</label>
       <select
         value={selectedEntity}
         onChange={(e) => setSelectedEntity(e.target.value)}
@@ -132,15 +127,19 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
         ))}
       </select>
 
-      <h2>📑 Quejas registradas para: {normalizeEntityName(selectedEntity)}</h2>
+      <h2 style={{ color: "#000" }}>
+        Quejas registradas para: {normalizeEntityName(selectedEntity)}
+      </h2>
 
       {loading && <p>Cargando quejas...</p>}
 
       {!loading && (!complaints || complaints.length === 0) ? (
-        <p>No hay quejas registradas para esta entidad.</p>
+        <p style={{ color: "#000" }}>
+          No hay quejas registradas para esta entidad.
+        </p>
       ) : (
         <ul style={{ listStyle: "none", padding: 0 }}>
-          {complaints && complaints.map((c) => (
+          {complaints.map((c) => (
             <li
               key={c.id}
               style={{
@@ -148,7 +147,7 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
                 padding: "15px",
                 border: "1px solid #ddd",
                 borderRadius: "8px",
-                backgroundColor: "#f9f9f9",
+                backgroundColor: "#ffffffff",
                 color: "#000",
               }}
             >
@@ -159,22 +158,39 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
                     {c.status && <span style={{ marginLeft: '10px', ...getStatusStyle(c.status) }}>{c.status}</span>}
                   </div>
                   <p style={{ margin: '5px 0' }}>{c.text}</p>
-                  <small>📅 {new Date(c.date).toLocaleString()}</small>
+                  <small>{new Date(c.date).toLocaleString()}</small>
                 </div>
-                <button
-                  onClick={() => handleDeleteClick(c)}
-                  style={{
-                    marginLeft: "10px",
-                    padding: "5px 10px",
-                    backgroundColor: "#dc3545",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "5px",
-                    cursor: "pointer",
-                  }}
-                >
-                  🗑️ Eliminar
-                </button>
+
+                {/* BOTONES EDITAR Y ELIMINAR */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginLeft: '10px' }}>
+                  <button
+                    onClick={() => handleEditClick(c)}
+                    style={{
+                      padding: "5px 10px",
+                      backgroundColor: "#ffff4bff",
+                      color: "black",
+                      border: "none",
+                      borderRadius: "5px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    onClick={() => handleDeleteClick(c)}
+                    style={{
+                      padding: "5px 10px",
+                      backgroundColor: "#ee5766ff",
+                      color: "black",
+                      border: "none",
+                      borderRadius: "5px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Eliminar
+                  </button>
+                </div>
               </div>
 
               <AnswerSection
@@ -187,8 +203,8 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
         </ul>
       )}
 
-      {/* Controles de Paginación */}
-      {!loading && complaints && complaints.length > 0 && totalPages > 1 && (
+      {/* PAGINACIÓN */}
+      {!loading && complaints.length > 0 && totalPages > 1 && (
         <div style={{ margin: '20px 0', textAlign: 'center' }}>
           <button onClick={handlePreviousPage} disabled={page === 0} style={{ marginRight: '10px' }}>
             &laquo; Anterior

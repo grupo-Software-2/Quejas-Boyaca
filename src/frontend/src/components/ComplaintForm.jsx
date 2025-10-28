@@ -8,7 +8,7 @@ function ComplaintForm({ entities, onComplaintAdded, normalizeEntityName }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!text.trim() || text.length > 1000) {
-      alert("❌ La queja no puede estar vacía y debe tener máximo 1000 caracteres.");
+      alert("La queja no puede estar vacía y debe tener máximo 1000 caracteres.");
       return;
     }
 
@@ -18,12 +18,12 @@ function ComplaintForm({ entities, onComplaintAdded, normalizeEntityName }) {
         text,
       });
 
-      alert("✅ Queja registrada con éxito.");
+      alert("Queja registrada con éxito.");
       setText("");
       onComplaintAdded(response.data);
     } catch (error) {
       console.error(error);
-      alert("❌ Error al registrar la queja.");
+      alert("Error al registrar la queja.");
     }
   };
 

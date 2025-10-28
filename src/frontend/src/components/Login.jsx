@@ -1,177 +1,139 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
-function Login({ onSwitchToRegister }) {
-    const { login } = useAuth();
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
-    const [ isLoading, setIsLoading ] = useState(false);
-    const [ error, setError ] = useState('');
+export default function Login({ onSwitchToRegister, onContinueAsGuest }) {
+  const { login } = useAuth();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-        setIsLoading(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
-        const result = await login(username, password);
+    try {
+      await login({ username, password });
+    } catch (err) {
+      if (err.response?.status === 401) {
+        setError("Usuario o contraseña incorrectos");
+      } else {
+        setError("Error de conexión, intenta más tarde");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        if (!result.success) {
-            setError(result.message);
-        }
-
-        setIsLoading(false);
-    };
-
-    return (
+  return (
     <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: '100vh',
-      backgroundColor: '#f5f5f5'
+      position: "fixed",
+      top: 0,
+      left: 0,
+      width: "100vw",
+      height: "100vh",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: "#323232ff"
     }}>
       <div style={{
-        backgroundColor: 'white',
-        padding: '40px',
-        borderRadius: '10px',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        width: '100%',
-        maxWidth: '400px',
-        color: '#000'
+        width: "400px",
+        padding: "30px",
+        borderRadius: "10px",
+        backgroundColor: "white",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+        textAlign: "center"
       }}>
-        <h2 style={{ textAlign: 'center', marginBottom: '30px', color: '#333' }}>
-          🔐 Iniciar Sesión
-        </h2>
-
-        {error && (
-          <div style={{
-            backgroundColor: '#fee',
-            color: '#c33',
-            padding: '10px',
-            borderRadius: '5px',
-            marginBottom: '20px',
-            border: '1px solid #fcc'
-          }}>
-            {error}
-          </div>
-        )}
+        <h1 style={{ marginBottom: "10px", color: "#333" }}>Sistema de Quejas Boyacá</h1>
+        <h2 style={{ marginBottom: "20px", color: "#555" }}>Iniciar Sesión</h2>
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#333' }}>
-              Usuario:
-            </label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Ingrese su usuario"
-              required
-              disabled={isLoading}
-              style={{
-                width: '100%',
-                padding: '10px',
-                fontSize: '14px',
-                border: '1px solid #ddd',
-                borderRadius: '5px',
-                boxSizing: 'border-box',
-                color: '#000',
-                backgroundColor: '#fff'
-              }}
-            />
-          </div>
-
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#333' }}>
-              Contraseña:
-            </label>
-            <div style={{ position: 'relative' }}>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Ingrese su contraseña"
-                required
-                disabled={isLoading}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  paddingRight: '40px',
-                  fontSize: '14px',
-                  border: '1px solid #ddd',
-                  borderRadius: '5px',
-                  boxSizing: 'border-box',
-                  color: '#000',
-                  backgroundColor: '#fff'
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: 'absolute',
-                  right: '10px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontSize: '16px',
-                  padding: '0'
-                }}
-              >
-                {showPassword ? '🙈' : '👁️'}
-              </button>
-            </div>
-          </div>
-
+          <input
+            type="text"
+            placeholder="Usuario"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            required
+            style={{
+              width: "100%",
+              padding: "12px",
+              marginBottom: "15px",
+              borderRadius: "5px",
+              border: "1px solid #ccc",
+              boxSizing: "border-box",
+              color: "#ffffffff"
+            }}
+          />
+          <input
+            type="password"
+            placeholder="Contraseña"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+            style={{
+              width: "100%",
+              padding: "12px",
+              marginBottom: "15px",
+              borderRadius: "5px",
+              border: "1px solid #ccc",
+              boxSizing: "border-box",
+              color: "#ffffffff"
+            }}
+          />
           <button
             type="submit"
-            disabled={isLoading}
             style={{
-              width: '100%',
-              padding: '12px',
-              backgroundColor: '#4CAF50',
-              color: 'white',
-              border: 'none',
-              borderRadius: '5px',
-              fontSize: '16px',
-              fontWeight: 'bold',
-              cursor: isLoading ? 'not-allowed' : 'pointer',
-              opacity: isLoading ? 0.6 : 1,
-              transition: 'background-color 0.3s'
+              width: "100%",
+              padding: "12px",
+              borderRadius: "5px",
+              border: "none",
+              backgroundColor: "#4CAF50",
+              color: "white",
+              fontWeight: "bold",
+              cursor: "pointer"
             }}
+            disabled={loading}
           >
-            {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+            {loading ? "Validando..." : "Login"}
           </button>
+          {error && <p style={{ color: "red", marginTop: "15px" }}>{error}</p>}
         </form>
 
-        <div style={{
-          marginTop: '20px',
-          textAlign: 'center',
-          color: '#666',
-          fontSize: '14px'
-        }}>
-          ¿No tienes cuenta?{' '}
-          <button
-            onClick={onSwitchToRegister}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#4CAF50',
-              cursor: 'pointer',
-              textDecoration: 'underline',
-              fontSize: '14px',
-              padding: '0'
-            }}
-          >
-            Regístrate aquí
-          </button>
-        </div>
+        {/* Botón Continuar como invitado */}
+        <button
+          onClick={onContinueAsGuest}
+          style={{
+            marginTop: "15px",
+            width: "100%",
+            padding: "12px",
+            borderRadius: "5px",
+            border: "none",
+            backgroundColor: "#007BFF",
+            color: "white",
+            fontWeight: "bold",
+            cursor: "pointer"
+          }}
+        >
+          Continuar como Invitado
+        </button>
+
+        {/* Enlace para registrarse */}
+        <button
+          onClick={onSwitchToRegister}
+          style={{
+            marginTop: "15px",
+            background: "none",
+            border: "none",
+            color: "#007BFF",
+            cursor: "pointer",
+            textDecoration: "underline"
+          }}
+        >
+          Registrarse
+        </button>
       </div>
     </div>
   );
 }
-
-export default Login;

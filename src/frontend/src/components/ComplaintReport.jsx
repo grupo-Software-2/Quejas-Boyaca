@@ -34,7 +34,7 @@ function ComplaintReport({ entities, normalizeEntityName }) {
 
   return (
     <div>
-      <h2>📊 Reporte de Quejas por Entidad</h2>
+      <h2>Reporte de Quejas por Entidad</h2>
       
       {totalComplaints === 0 ? (
         <p>No hay quejas registradas en el sistema.</p>
