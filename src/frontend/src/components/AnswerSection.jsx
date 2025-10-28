@@ -39,7 +39,7 @@ function AnswerSection({ complaintId, initialAnswers, onAnswerAdded }) {
                     {answers.map((answer, index) => (
                         <li key={index} style={{ marginBottom: '8px', padding: '5px', borderLeft: '3px solid #007bff' }}>
                             <p style={{ margin: 0 }}>{answer.message}</p>
-                            <small style={{ color: '#999' }}>📅 {new Date(answer.date).toLocaleString()}</small>
+                            <small style={{ color: '#1e1e1eff' }}> {new Date(answer.date).toLocaleString()}</small>
                         </li>
                     ))}
                 </ul>
@@ -52,7 +52,7 @@ function AnswerSection({ complaintId, initialAnswers, onAnswerAdded }) {
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Escribe tu respuesta aquí..."
-                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd', resize: 'vertical' }}
+                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #000000ff', resize: 'vertical', backgroundColor: '#ffffffff' }}
                     required
                 />
                 <button

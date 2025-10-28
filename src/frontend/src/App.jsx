@@ -1,4 +1,3 @@
-// src/App.jsx
 import { useState } from "react";
 import { useAuth } from "./context/AuthContext";
 import ComplaintForm from "./components/ComplaintForm";
@@ -37,6 +36,8 @@ function App() {
   const [authView, setAuthView] = useState("login");
   const [isGuest, setIsGuest] = useState(false);
 
+  const [complaintToEdit, setComplaintToEdit] = useState(null);
+
   if (loading) {
     return (
       <div style={{
@@ -62,9 +63,6 @@ function App() {
       <Register onSwitchToLogin={() => setAuthView("login")} />
     );
   }
-
-  // Funciones públicas: accesibles a invitados
-  const isPublic = isGuest || !isAuthenticated;
 
   return (
     <div style={{
@@ -94,11 +92,10 @@ function App() {
           padding: '15px',
           backgroundColor: '#f8f9fa',
           borderRadius: '8px',
-          border: '1px solid #ddd',
-          color: '#000'
+          border: '1px solid #ddd'
         }}>
-          <div>
-            <strong>Usuario:</strong> {isGuest ? "Invitado" : user?.username || "Usuario"}
+          <div style={{ color: '#000' }}>
+            <strong>Usuario:</strong> {isGuest ? 'Invitado' : user?.username || 'Usuario'}
             {!isGuest && user?.role === 'ADMIN' && (
               <span style={{
                 marginLeft: '10px',
@@ -108,7 +105,9 @@ function App() {
                 borderRadius: '12px',
                 fontSize: '12px',
                 fontWeight: 'bold'
-              }}>ADMIN</span>
+              }}>
+                ADMIN
+              </span>
             )}
           </div>
           <button
@@ -123,20 +122,17 @@ function App() {
               fontWeight: 'bold'
             }}
           >
-            {isGuest ? 'Salir de Invitado' : 'Cerrar Sesión'}
+            {isGuest ? 'Salir' : 'Cerrar Sesión'}
           </button>
         </div>
 
-        <h1 style={{ textAlign: "center", color: "#333", marginBottom: "10px" }}>
-          Sistema de Registro de Quejas
-        </h1>
+        <h1 style={{ textAlign: "center", color: "#333", marginBottom: "10px" }}>Sistema de Registro de Quejas</h1>
         <p style={{ textAlign: "center", color: "#555", marginBottom: "20px" }}>
           Bienvenido {isGuest ? "invitado" : user?.username}
         </p>
 
         {/* Botones de navegación */}
         <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", marginBottom: "20px" }}>
-          {/* Funciones públicas */}
           <button
             onClick={() => setCurrentPage("list")}
             style={{
@@ -146,46 +142,43 @@ function App() {
               color: currentPage === "list" ? "white" : "black",
               border: "none",
               borderRadius: "5px",
-              cursor: "pointer"
+              cursor: "pointer",
             }}
           >
             Ver Quejas por Entidad
           </button>
-          <button
-            onClick={() => setCurrentPage("form")}
-            style={{
-              margin: "5px",
-              padding: "12px 20px",
-              backgroundColor: currentPage === "form" ? "#4CAF50" : "#ddd",
-              color: currentPage === "form" ? "white" : "black",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer"
-            }}
-          >
-            Registrar Queja
-          </button>
 
-          {/* Funciones privadas: solo usuarios autenticados */}
-          {!isPublic && (
+          {!isGuest && (
             <button
-              onClick={() => {
-                setCurrentPage("report");
-                setCaptchaPassed(false);
-              }}
+              onClick={() => { setCurrentPage("form"); setComplaintToEdit(null); }}
               style={{
                 margin: "5px",
                 padding: "12px 20px",
-                backgroundColor: currentPage === "report" ? "#4CAF50" : "#ddd",
-                color: currentPage === "report" ? "white" : "black",
+                backgroundColor: currentPage === "form" ? "#4CAF50" : "#ddd",
+                color: currentPage === "form" ? "white" : "black",
                 border: "none",
                 borderRadius: "5px",
-                cursor: "pointer"
+                cursor: "pointer",
               }}
             >
-              Lista de Quejas (Privada)
+              {complaintToEdit ? "Editar Queja" : "Registrar Queja"}
             </button>
           )}
+
+          <button
+            onClick={() => { setCurrentPage("report"); setCaptchaPassed(false); }}
+            style={{
+              margin: "5px",
+              padding: "12px 20px",
+              backgroundColor: currentPage === "report" ? "#4CAF50" : "#ddd",
+              color: currentPage === "report" ? "white" : "black",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+          >
+            Reporte de Quejas
+          </button>
         </div>
 
         {/* Contenido dinámico */}
@@ -193,19 +186,23 @@ function App() {
           <ComplaintList
             entities={entities}
             normalizeEntityName={normalizeEntityName}
-            isPublic={isPublic}
+            onEdit={(complaint) => {
+              setComplaintToEdit(complaint);
+              setCurrentPage("form");
+            }}
           />
         )}
 
-        {currentPage === "form" && (
+        {currentPage === "form" && !isGuest && (
           <ComplaintForm
             entities={entities}
             normalizeEntityName={normalizeEntityName}
-            onComplaintAdded={() => setCurrentPage("list")}
+            complaintToEdit={complaintToEdit}
+            onComplaintAdded={() => { setCurrentPage("list"); setComplaintToEdit(null); }}
           />
         )}
 
-        {currentPage === "report" && !isPublic && (
+        {currentPage === "report" && (
           captchaPassed ? (
             <ComplaintReport
               entities={entities}

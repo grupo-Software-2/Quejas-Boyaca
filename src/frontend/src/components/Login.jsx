@@ -1,4 +1,3 @@
-// src/components/Login.jsx
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
@@ -63,7 +62,8 @@ export default function Login({ onSwitchToRegister, onContinueAsGuest }) {
               marginBottom: "15px",
               borderRadius: "5px",
               border: "1px solid #ccc",
-              boxSizing: "border-box"
+              boxSizing: "border-box",
+              color: "#000"
             }}
           />
           <input
@@ -78,7 +78,8 @@ export default function Login({ onSwitchToRegister, onContinueAsGuest }) {
               marginBottom: "15px",
               borderRadius: "5px",
               border: "1px solid #ccc",
-              boxSizing: "border-box"
+              boxSizing: "border-box",
+              color: "#000"
             }}
           />
           <button
@@ -100,7 +101,7 @@ export default function Login({ onSwitchToRegister, onContinueAsGuest }) {
           {error && <p style={{ color: "red", marginTop: "15px" }}>{error}</p>}
         </form>
 
-        {/* Continuar como invitado */}
+        {/* Botón Continuar como invitado */}
         <button
           onClick={onContinueAsGuest}
           style={{
