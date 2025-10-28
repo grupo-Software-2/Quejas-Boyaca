@@ -63,7 +63,8 @@ function App() {
     );
   }
 
-  const isAdmin = user?.role === "ADMIN";
+  // Funciones públicas: accesibles a invitados
+  const isPublic = isGuest || !isAuthenticated;
 
   return (
     <div style={{
@@ -93,11 +94,12 @@ function App() {
           padding: '15px',
           backgroundColor: '#f8f9fa',
           borderRadius: '8px',
-          border: '1px solid #ddd'
+          border: '1px solid #ddd',
+          color: '#000'
         }}>
-          <div style={{ color: '#000' }}>
-            <strong>Usuario:</strong> {isGuest ? 'Invitado' : user?.username || 'Usuario'}
-            {isAdmin && (
+          <div>
+            <strong>Usuario:</strong> {isGuest ? "Invitado" : user?.username || "Usuario"}
+            {!isGuest && user?.role === 'ADMIN' && (
               <span style={{
                 marginLeft: '10px',
                 padding: '3px 8px',
@@ -106,9 +108,7 @@ function App() {
                 borderRadius: '12px',
                 fontSize: '12px',
                 fontWeight: 'bold'
-              }}>
-                ADMIN
-              </span>
+              }}>ADMIN</span>
             )}
           </div>
           <button
@@ -136,6 +136,7 @@ function App() {
 
         {/* Botones de navegación */}
         <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", marginBottom: "20px" }}>
+          {/* Funciones públicas */}
           <button
             onClick={() => setCurrentPage("list")}
             style={{
@@ -145,43 +146,46 @@ function App() {
               color: currentPage === "list" ? "white" : "black",
               border: "none",
               borderRadius: "5px",
-              cursor: "pointer",
+              cursor: "pointer"
             }}
           >
             Ver Quejas por Entidad
           </button>
-
-          {!isGuest && (
-            <button
-              onClick={() => setCurrentPage("form")}
-              style={{
-                margin: "5px",
-                padding: "12px 20px",
-                backgroundColor: currentPage === "form" ? "#4CAF50" : "#ddd",
-                color: currentPage === "form" ? "white" : "black",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-              }}
-            >
-              Registrar Queja
-            </button>
-          )}
-
           <button
-            onClick={() => { setCurrentPage("report"); setCaptchaPassed(false); }}
+            onClick={() => setCurrentPage("form")}
             style={{
               margin: "5px",
               padding: "12px 20px",
-              backgroundColor: currentPage === "report" ? "#4CAF50" : "#ddd",
-              color: currentPage === "report" ? "white" : "black",
+              backgroundColor: currentPage === "form" ? "#4CAF50" : "#ddd",
+              color: currentPage === "form" ? "white" : "black",
               border: "none",
               borderRadius: "5px",
-              cursor: "pointer",
+              cursor: "pointer"
             }}
           >
-            Reporte de Quejas
+            Registrar Queja
           </button>
+
+          {/* Funciones privadas: solo usuarios autenticados */}
+          {!isPublic && (
+            <button
+              onClick={() => {
+                setCurrentPage("report");
+                setCaptchaPassed(false);
+              }}
+              style={{
+                margin: "5px",
+                padding: "12px 20px",
+                backgroundColor: currentPage === "report" ? "#4CAF50" : "#ddd",
+                color: currentPage === "report" ? "white" : "black",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer"
+              }}
+            >
+              Lista de Quejas (Privada)
+            </button>
+          )}
         </div>
 
         {/* Contenido dinámico */}
@@ -189,10 +193,11 @@ function App() {
           <ComplaintList
             entities={entities}
             normalizeEntityName={normalizeEntityName}
+            isPublic={isPublic}
           />
         )}
 
-        {currentPage === "form" && !isGuest && (
+        {currentPage === "form" && (
           <ComplaintForm
             entities={entities}
             normalizeEntityName={normalizeEntityName}
@@ -200,7 +205,7 @@ function App() {
           />
         )}
 
-        {currentPage === "report" && (
+        {currentPage === "report" && !isPublic && (
           captchaPassed ? (
             <ComplaintReport
               entities={entities}
