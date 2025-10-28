@@ -69,6 +69,18 @@ export const protectedComplaintsAPI = {
 };
 
 // ============================
+// OPERACIONES PROTEGIDAS (Render con authClient)
+// ============================
+export const protectedComplaintsAPI = {
+  deleteComplaint: (id, password) =>
+    authClient.delete(`/api/complaints/delete/${id}`, { data: { password } }),
+  
+  editComplaint: (id, updatedData) =>
+    authClient.put(`/api/complaints/edit/${id}`, updatedData),
+};
+
+
+// ============================
 // ENDPOINT CAPTCHA
 // ============================
 export const captchaAPI = {
