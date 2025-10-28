@@ -136,4 +136,4 @@ export default function Login({ onSwitchToRegister, onContinueAsGuest }) {
       </div>
     </div>
   );
-}
+} 

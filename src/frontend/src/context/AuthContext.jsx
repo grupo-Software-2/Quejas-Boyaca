@@ -22,10 +22,10 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const login = async (username, password) => {
+    const login = async (credentials) => {
         try {
-            const response = await authApi.login({ username, password });
-            setUser(response.data.user);
+            const response = await authApi.login(credentials);
+            setUser(response.data.user || response.data);
             return { success: true };
         } catch (error) {
             const message = error.response?.data?.message || 'Error al iniciar sesión';
