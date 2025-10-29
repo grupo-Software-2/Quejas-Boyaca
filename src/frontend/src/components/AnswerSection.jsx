@@ -13,10 +13,10 @@ function AnswerSection({ complaintId, initialAnswers, onAnswerAdded }) {
         setIsSubmitting(true);
         try {
             const response = await complaintsAPI.createAnswer(complaintId, newMessage);
-            
+
             setAnswers([...answers, response.data]);
             setNewMessage('');
-            
+
             if (onAnswerAdded) {
                 onAnswerAdded(response.data);
             }
@@ -52,7 +52,17 @@ function AnswerSection({ complaintId, initialAnswers, onAnswerAdded }) {
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Escribe tu respuesta aquí..."
-                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #000000ff', resize: 'vertical', backgroundColor: '#ffffffff' }}
+                    style={{
+                        width: '100%',
+                        padding: '8px',
+                        borderRadius: '4px',
+                        border: '1px solid #000000ff',
+                        resize: 'vertical',
+                        backgroundColor: '#ffffffff',
+                        color: '#000',
+                        fontSize: '14px',
+                        fontFamily: 'inherit'
+                    }}
                     required
                 />
                 <button

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.uptc.complaint_sistem.dto.ComplaintDTO;
+import com.uptc.complaint_sistem.security.AuthClient;
 import jakarta.validation.Valid;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -40,10 +41,12 @@ public class ComplaintController {
 
     private final ComplaintService service;
     private final ApplicationEventPublisher eventPublisher;
+    private final AuthClient authClient;
 
-    public ComplaintController(ComplaintService service, ApplicationEventPublisher eventPublisher) {
+    public ComplaintController(ComplaintService service, ApplicationEventPublisher eventPublisher, AuthClient authClient) {
         this.service = service;
         this.eventPublisher = eventPublisher;
+        this.authClient = authClient;
     }
 
     @PostMapping
@@ -123,12 +126,29 @@ public class ComplaintController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteComplaint(@PathVariable Long id, @RequestBody Map<String, String> credentials) {
+    public ResponseEntity<?> deleteComplaint(
+            @PathVariable Long id,
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestBody Map<String, String> credentials) {
+
         try {
             String password = credentials.get("password");
             if (password == null || password.isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Se requiere contrasenia"));
             }
+
+            if (!authorizationHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Token invalido"));
+            }
+
+            String token = authorizationHeader.substring(7);
+
+            boolean valid = authClient.verifyPassword(token, password);
+
+            if (!valid) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Contrasenia incorrecta"));
+            }
+
             service.deleteComplaint(id, password);
             return ResponseEntity.ok().body(Map.of("message", "Queja eliminada exitosamente"));
         } catch (SecurityException e) {
