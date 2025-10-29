@@ -25,7 +25,8 @@ public class WebConfig implements WebMvcConfigurer {
                 .excludePathPatterns(
                     "/api/verify-captcha",
                     "/api/complaints",
-                    "/api/complaints/*"
+                    "/api/complaints/*",
+                    "/api/answers/**"
                 );
     }
 }

@@ -4,41 +4,57 @@ import axios from "axios";
 // BACKEND AUTH (Render)
 // ============================
 const authClient = axios.create({
-    baseURL: import.meta.env.VITE_API_URL_RENDER, // AUTH
-    timeout: 10000,
-    headers: { "Content-Type": "application/json" },
-    withCredentials: true,
+  baseURL: import.meta.env.VITE_API_URL_RENDER, // AUTH
+  timeout: 10000,
+  headers: { "Content-Type": "application/json" },
+  withCredentials: true,
 });
 
 authClient.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-            window.dispatchEvent(new Event("unauthorized"));
-        }
-        return Promise.reject(error);
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      window.dispatchEvent(new Event("unauthorized"));
     }
+    return Promise.reject(error);
+  }
 );
 
 // ============================
 // BACKEND APP (Quejas Koyeb)
 // ============================
 const complaintsClient = axios.create({
-    baseURL: import.meta.env.VITE_API_URL_KOYEB, // APP
-    timeout: 10000,
-    headers: { "Content-Type": "application/json" },
-    withCredentials: true,
+  baseURL: import.meta.env.VITE_API_URL_KOYEB, // APP
+  timeout: 10000,
+  headers: { "Content-Type": "application/json" },
+  withCredentials: true,
+});
+
+[authClient, complaintsClient].forEach((client) => {
+  client.interceptors.request.use((config) => {
+    const sessionId = localStorage.getItem("sessionId");
+    if (sessionId) {
+      config.headers["Session-Id"] = sessionId;
+    }
+    return config;
+  });
 });
 
 // ============================
 // ENDPOINTS AUTH
 // ============================
 export const authApi = {
-    login: (credentials) => authClient.post('/api/auth/login', credentials),
-    register: (userData) => authClient.post('/api/auth/register', userData),
-    logout: () => authClient.post('/api/auth/logout'),
-    getCurrentUser: () => authClient.get('/api/auth/me'),
-    refreshSession: () => authClient.post('/api/auth/refresh'),
+  login: (credentials) => authClient.post('/api/auth/login', credentials),
+  register: (userData) => authClient.post('/api/auth/register', userData),
+  logout: () => authClient.post('/api/auth/logout'),
+  getCurrentUser: () => {
+    const sessionId = localStorage.getItem('sessionId');
+    if (!sessionId) {
+      return Promise.reject(new Error("No hay sesión disponible"));
+    }
+    return authClient.get('/api/auth/me');
+  },
+  refreshSession: () => authClient.post('/api/auth/refresh'),
 };
 
 // ============================
@@ -53,8 +69,7 @@ export const complaintsAPI = {
   createComplaint: (complaintData) => complaintsClient.post('/api/complaints', complaintData),
   getAllComplaints: () => complaintsClient.get('/api/complaints'),
   getComplaintsByEntity: (entity) => complaintsClient.get(`/api/complaints/${entity}`),
-  createAnswer: (complaintId, message) =>
-    complaintsClient.post(`/api/answers/add`, { complaintId, message }),
+  createAnswer: (complaintId, message) => complaintsClient.post(`/api/answers/add`, { complaint_id: complaintId, message }),
 };
 
 // ============================
@@ -62,22 +77,21 @@ export const complaintsAPI = {
 // ============================
 export const protectedComplaintsAPI = {
   deleteComplaint: async (id, password) => {
-    // 1️⃣ Validar usuario y contraseña en Auth (Render)
-    await authClient.post(`/api/complaints/verify-password`, { id, password });
-    
-    // 2️⃣ Si pasa la validación, hacer DELETE en Koyeb (o Render puede hacerlo internamente)
-    return complaintsClient.delete(`/api/complaints/delete/${id}`);
+    return complaintsClient.delete(`/api/complaints/delete/${id}`, {
+      data: { password },
+    });
   },
 
-  editComplaint: (id, updatedData) =>
-    authClient.put(`/api/complaints/edit/${id}`, updatedData),
+  editComplaint: async (id, updatedData) => {
+    complaintsClient.put(`/api/complaints/edit/${id}`, updatedData);
+  },
 };
 
 // ============================
 // ENDPOINT CAPTCHA
 // ============================
 export const captchaAPI = {
-    verifyCaptcha: (token) => complaintsClient.post('/api/verify-captcha', { token }),
+  verifyCaptcha: (token) => complaintsClient.post('/api/verify-captcha', { token }),
 };
 
 // ============================

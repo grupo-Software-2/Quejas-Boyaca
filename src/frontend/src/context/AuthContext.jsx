@@ -12,10 +12,20 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const checkSession = async () => {
+        const sessionId = localStorage.getItem("sessionId");
+
+        if (!sessionId) {
+            console.log("No hay sesión, omitiendo validación de sesión.");
+            setUser(null);
+            setLoading(false);
+            return;
+        }
+
         try {
-            const response = await authApi.getCurrentUser();
+            const response = await authApi.getCurrentUser(sessionId);
             setUser(response.data);
         } catch (error) {
+            console.error("Error al validar la sesión:", error);
             setUser(null);
         } finally {
             setLoading(false);
@@ -25,7 +35,14 @@ export const AuthProvider = ({ children }) => {
     const login = async (credentials) => {
         try {
             const response = await authApi.login(credentials);
-            setUser(response.data.user || response.data);
+            const { sessionId, username } = response.data;
+
+            if (!sessionId) {
+                return { success: false, message: "No se recibió Session ID" };
+            }
+
+            localStorage.setItem("sessionId", sessionId);
+            setUser({ username });
             return { success: true };
         } catch (error) {
             const message = error.response?.data?.message || 'Error al iniciar sesión';
@@ -55,6 +72,7 @@ export const AuthProvider = ({ children }) => {
 
     const value = {
         user,
+        sessionId: localStorage.getItem("sessionId"),
         loading,
         login,
         register,

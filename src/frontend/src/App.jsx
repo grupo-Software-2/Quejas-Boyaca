@@ -38,6 +38,12 @@ function App() {
 
   const [complaintToEdit, setComplaintToEdit] = useState(null);
 
+  useEffect(() => {
+    if (isGuest && currentPage === "home") {
+      setCurrentPage("form");
+    }
+  }, [isGuest, currentPage]);
+
   if (loading) {
     return (
       <div style={{
@@ -126,29 +132,55 @@ function App() {
           </button>
         </div>
 
-        <h1 style={{ textAlign: "center", color: "#333", marginBottom: "10px" }}>Sistema de Registro de Quejas</h1>
+        <h1 style={{ textAlign: "center", color: "#333", marginBottom: "10px" }}>
+          Sistema de Registro de Quejas
+        </h1>
         <p style={{ textAlign: "center", color: "#555", marginBottom: "20px" }}>
           Bienvenido {isGuest ? "invitado" : user?.username}
         </p>
 
-        {/* Botones de navegación */}
-        <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", marginBottom: "20px" }}>
-          <button
-            onClick={() => setCurrentPage("list")}
-            style={{
-              margin: "5px",
-              padding: "12px 20px",
-              backgroundColor: currentPage === "list" ? "#4CAF50" : "#ddd",
-              color: currentPage === "list" ? "white" : "black",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-          >
-            Ver Quejas por Entidad
-          </button>
+        {/* Mensaje informativo para invitados */}
+        {isGuest && (
+          <div style={{
+            padding: '12px',
+            backgroundColor: '#fff3cd',
+            border: '1px solid #ffc107',
+            borderRadius: '5px',
+            marginBottom: '20px',
+            textAlign: 'center',
+            color: '#856404'
+          }}>
+            <strong>⚠️ Acceso limitado:</strong> Como invitado solo puedes registrar quejas.
+            <br />
+            <span style={{ fontSize: '14px' }}>
+              Para ver reportes y gestionar quejas, inicia sesión.
+            </span>
+          </div>
+        )}
 
-          {!isGuest && (
+        {/* Botones de navegación - SOLO PARA USUARIOS AUTENTICADOS */}
+        {!isGuest && (
+          <div style={{
+            display: "flex",
+            justifyContent: "center",
+            flexWrap: "wrap",
+            marginBottom: "20px"
+          }}>
+            <button
+              onClick={() => setCurrentPage("list")}
+              style={{
+                margin: "5px",
+                padding: "12px 20px",
+                backgroundColor: currentPage === "list" ? "#4CAF50" : "#ddd",
+                color: currentPage === "list" ? "white" : "black",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+              }}
+            >
+              Ver Quejas por Entidad
+            </button>
+
             <button
               onClick={() => { setCurrentPage("form"); setComplaintToEdit(null); }}
               style={{
@@ -163,26 +195,26 @@ function App() {
             >
               {complaintToEdit ? "Editar Queja" : "Registrar Queja"}
             </button>
-          )}
 
-          <button
-            onClick={() => { setCurrentPage("report"); setCaptchaPassed(false); }}
-            style={{
-              margin: "5px",
-              padding: "12px 20px",
-              backgroundColor: currentPage === "report" ? "#4CAF50" : "#ddd",
-              color: currentPage === "report" ? "white" : "black",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-          >
-            Reporte de Quejas
-          </button>
-        </div>
+            <button
+              onClick={() => { setCurrentPage("report"); setCaptchaPassed(false); }}
+              style={{
+                margin: "5px",
+                padding: "12px 20px",
+                backgroundColor: currentPage === "report" ? "#4CAF50" : "#ddd",
+                color: currentPage === "report" ? "white" : "black",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+              }}
+            >
+              Reporte de Quejas
+            </button>
+          </div>
+        )}
 
         {/* Contenido dinámico */}
-        {currentPage === "list" && (
+        {currentPage === "list" && !isGuest && (
           <ComplaintList
             entities={entities}
             normalizeEntityName={normalizeEntityName}
@@ -193,16 +225,25 @@ function App() {
           />
         )}
 
-        {currentPage === "form" && !isGuest && (
+        {currentPage === "form" && (
           <ComplaintForm
             entities={entities}
             normalizeEntityName={normalizeEntityName}
             complaintToEdit={complaintToEdit}
-            onComplaintAdded={() => { setCurrentPage("list"); setComplaintToEdit(null); }}
+            onComplaintAdded={() => {
+              if (isGuest) {
+                // El invitado se queda en el formulario
+                alert("Queja registrada con éxito. Puedes registrar otra queja o salir.");
+              } else {
+                // Usuario autenticado va a la lista
+                setCurrentPage("list");
+                setComplaintToEdit(null);
+              }
+            }}
           />
         )}
 
-        {currentPage === "report" && (
+        {currentPage === "report" && !isGuest && (
           captchaPassed ? (
             <ComplaintReport
               entities={entities}
@@ -220,13 +261,47 @@ function App() {
               border: "1px solid #ddd",
               textAlign: "center"
             }}>
-              <h3 style={{ color: "#000" }}>Verifica que no eres un robot antes de ver el reporte</h3>
+              <h3 style={{ color: "#000" }}>
+                Verifica que no eres un robot antes de ver el reporte
+              </h3>
               <CaptchaForm onVerify={setCaptchaPassed} />
             </div>
           )
         )}
 
-        {currentPage === "home" && <p style={{ textAlign: "center" }}>Selecciona una opción para comenzar.</p>}
+        {currentPage === "home" && !isGuest && (
+          <p style={{ textAlign: "center" }}>Selecciona una opción para comenzar.</p>
+        )}
+
+        {/* Mensaje si invitado intenta acceder a páginas restringidas */}
+        {isGuest && (currentPage === "list" || currentPage === "report") && (
+          <div style={{
+            padding: '20px',
+            backgroundColor: '#f8d7da',
+            border: '1px solid #f5c6cb',
+            borderRadius: '5px',
+            textAlign: 'center',
+            color: '#721c24'
+          }}>
+            <h3>🚫 Acceso Denegado</h3>
+            <p>Esta sección solo está disponible para usuarios registrados.</p>
+            <button
+              onClick={() => { setIsGuest(false); logout(); }}
+              style={{
+                marginTop: '10px',
+                padding: '10px 20px',
+                backgroundColor: '#4CAF50',
+                color: 'white',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer',
+                fontWeight: 'bold'
+              }}
+            >
+              Ir a Iniciar Sesión
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

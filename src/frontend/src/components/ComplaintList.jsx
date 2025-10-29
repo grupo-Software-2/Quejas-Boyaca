@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useAuth } from "../context/AuthContext";
 import DeleteComplaintModal from "./DeleteComplaintModal";
 import AnswerSection from "./AnswerSection";
 import { complaintsAPI, protectedComplaintsAPI } from "../services/api";
@@ -14,17 +15,19 @@ const getStatusStyle = (status) => {
 };
 
 function ComplaintListByEntity({ entities, normalizeEntityName }) {
+  const { sessionId, isAuthenticated } = useAuth();
   const [selectedEntity, setSelectedEntity] = useState("");
   const [allComplaints, setAllComplaints] = useState([]);
   const [complaints, setComplaints] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const pageSize = 10;
+  const [loading, setLoading] = useState(false);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [complaintToDelete, setComplaintToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [loading, setLoading] = useState(false);
+
+  const pageSize = 10;
 
   // Cargar quejas
   const loadComplaints = useCallback(() => {
@@ -70,7 +73,13 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
 
   const handleConfirmDelete = async (password) => {
     if (!complaintToDelete) return;
+    if (!isAuthenticated || !sessionId) {
+      alert("Sesión no válida. Por favor, inicie sesión nuevamente.");
+      return;
+    }
+
     setIsDeleting(true);
+
     try {
       await protectedComplaintsAPI.deleteComplaint(complaintToDelete.id, password);
       alert("Queja eliminada exitosamente.");
@@ -78,6 +87,7 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
       setComplaintToDelete(null);
       loadComplaints();
     } catch (error) {
+      console.error("Error al eliminar la queja:", error);
       alert(error.response?.data?.error || "Error al eliminar la queja.");
     } finally { setIsDeleting(false); }
   };
@@ -88,6 +98,7 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
       alert("Queja editada correctamente.");
       loadComplaints();
     } catch (error) {
+      console.error("Error al editar:", error);
       alert(error.response?.data?.error || "Error al editar la queja.");
     }
   };

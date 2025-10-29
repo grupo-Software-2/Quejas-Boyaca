@@ -23,9 +23,13 @@ public class CorsConfig {
             .requestMatchers(
                 "/api/auth/login",
                 "/api/auth/register",
+                "/api/auth/logout",
+                "/api/auth/me",
+                "/api/auth/refresh",
                 "/api/verify-captcha",
                 "/api/complaints",
-                "/api/complaints/*"
+                "/api/complaints/**",
+                "/api/answers/**"
             ).permitAll()
             .anyRequest().authenticated()
         );
