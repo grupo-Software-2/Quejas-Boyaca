@@ -1,33 +1,36 @@
-# 📌 Proyecto Quejas-Boyacá - Taller Quejas - Sistema de Registro de Quejas
+# Proyecto Quejas-Boyacá - Taller Quejas - Sistema de Registro de Quejas
 
 El sistema permite **registrar quejas relacionadas con entidades públicas de la región de Boyacá**,  
 visualizar las quejas asociadas a cada entidad y **generar reportes detallados** por institución.  
 
-🔗 **Enlace al despliegue:** [Proyecto Quejas-Boyacá](https://taller-quejas.vercel.app/)
+**Enlace al despliegue:** [Proyecto Quejas-Boyacá](https://taller-quejas.vercel.app/)
 
 ## Despliegue
 
 - **Frontend - Vercel**
-- **Backend - Koyeb**
-- **Database - Render**
+- **Backend (API Quejas) - Koyeb**
+- **Backend (API Auth) - Render**
+- **Base de Datos - Alojada en el servicio de backend correspondiente**
 ---
 
-## 🚀 Tecnologías
+##  Tecnologías
 
 - **Lenguaje principal:** Java 21  
 - **Framework backend:** Spring Boot 3.5.4, Spring Data JPA (API REST, seguridad, persistencia con Hibernate)  
 - **Base de datos:** MySQL 8.0 (conexión mediante Spring Data JPA)  
-- **Hosting de BD:** Railway  
 - **Frontend:** React 18 + Vite  
 - **Gestor de dependencias backend:** Maven  
 - **Estilos frontend:** CSS  
 - **Librerías frontend:** Axios (peticiones HTTP)  
 - **Control de versiones:** Git + GitHub  
-- **Deployment:** Railway (Backend + Frontend + Base de Datos)  
+- **Deployment:**
+  - **Vercel:** Frontend
+  - **Koyeb:** Backend (Servicios de Quejas)
+  - **Render:** Backend (Servicios de Autenticación)
 
 ---
 
-## ⚙️ Requisitos previos (para uso en local)
+## Requisitos previos (para uso en local)
 
 Antes de instalar y ejecutar el proyecto, asegúrate de tener:  
 
@@ -49,50 +52,62 @@ Antes de instalar y ejecutar el proyecto, asegúrate de tener:
 
 ### 2. Configuración del Backend
 
-1. Ir al directorio: cd src/backend
+1. Ir al directorio: `cd src/backend`
 
-2. Crear la base de datos en MySQL: CREATE DATABASE quejas_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+2. Crear la base de datos en MySQL:
+   ```sql
+   CREATE DATABASE quejas_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   ```
 
-3. Crear archivo src/main/resources/application-local.properties con tu configuración local:
+3. Crear archivo `src/main/resources/application-local.properties` con tu configuración local:
+   ```properties
+   spring.datasource.url=jdbc:mysql://localhost:3306/quejas_db?useSSL=false&serverTimezone=UTC
+   spring.datasource.username=tu_usuario
+   spring.datasource.password=tu_password
+   spring.jpa.hibernate.ddl-auto=update
+   spring.jpa.show-sql=true
+   spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+   ```
 
-spring.datasource.url=jdbc:mysql://localhost:3306/quejas_db?useSSL=false&serverTimezone=UTC
-spring.datasource.username=tu_usuario
-spring.datasource.password=tu_password
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
-spring.datasource.hikari.maximum-pool-size=10
-spring.datasource.hikari.minimum-idle=2
-
-4. Instalar dependencias
-
-mvn clean install
-mvn spring-boot:run --spring.profiles.active=local
+4. Instalar dependencias y ejecutar:
+   ```bash
+   mvn clean install
+   mvn spring-boot:run --spring.profiles.active=local
+   ```
 
 ### 3. Configuración del Frontend
 
-1. Ir al directorio: cd src/frontend
+1. Ir al directorio: `cd src/frontend`
 
-2. Instalar dependencias: npm install
+2. Instalar dependencias:
+   ```bash
+   npm install
+   ```
 
-3. Crear archivo .env.local:
+3. Crear archivo `.env.local`. Necesitarás las URLs de los dos backends (Koyeb y Render) para el desarrollo local si apuntas a los servicios desplegados, o `http://localhost:8080` si ejecutas el backend localmente.
+   ```env
+   # Apuntando a un backend local
+   VITE_API_URL_KOYEB=http://localhost:8080 
+   VITE_API_URL_RENDER=http://localhost:8080
 
-VITE_API_URL=http://localhost:8080
-VITE_RECAPTCHA_SITE_KEY=tu_recaptcha_site_key
+   # Clave de reCAPTCHA
+   VITE_RECAPTCHA_SITE_KEY=tu_recaptcha_site_key
+   ```
 
 ### 4. Uso
 
 1. Iniciar el backend:
-
-cd src/backend
-mvn spring-boot:run --spring.profiles.active=local
+   ```bash
+   cd src/backend
+   mvn spring-boot:run --spring.profiles.active=local
+   ```
 
 2. Iniciar el frontend:
-
-cd src/frontend
-npm run dev
-
-http://localhost:5173
+   ```bash
+   cd src/frontend
+   npm run dev
+   ```
+   Abre `http://localhost:5173` en tu navegador.
 
 ### 5. Estructura del Proyecto
 
@@ -119,30 +134,31 @@ TALLER_QUEJAS/
 
 Se sigue el estándar Conventional Commits:
 
-feat: Nueva funcionalidad
-fix: Corrección de errores
-docs: Cambios en documentación
-style: Formato, espacios, puntos y comas, etc.
-refactor: Refactorización de código
-test: Agregar o modificar tests
+- `feat`: Nueva funcionalidad
+- `fix`: Corrección de errores
+- `docs`: Cambios en documentación
+- `style`: Formato, espacios, puntos y comas, etc.
+- `refactor`: Refactorización de código
+- `test`: Agregar o modificar tests
 
 ### 7. Problemas Comunes
 
-Error de conexión a BD:
-  Verificar que MySQL esté ejecutándose
-  Confirmar credenciales en application.properties
-  Revisar que la BD quejas_db exista
+**Error de conexión a BD:**
+- Verificar que MySQL esté ejecutándose.
+- Confirmar credenciales en `application-local.properties`.
+- Revisar que la BD `quejas_db` exista.
 
-CORS Error:
-  Verificar configuración de @CrossOrigin en controladores
-  Confirmar URL del frontend en configuración CORS
+**CORS Error:**
+- Verificar configuración de `@CrossOrigin` en los controladores del backend.
+- Confirmar que la URL del frontend (`http://localhost:5173`) esté permitida en la configuración CORS del backend.
 
-Error en build del frontend:
-  Ejecutar npm install para reinstalar dependencias
-  Verificar versión de Node.js (>=18)
-
-Limpiar caché:
+**Error en build del frontend:**
+- Ejecutar `npm install` para reinstalar dependencias.
+- Verificar versión de Node.js (`>=18`).
+- Si persisten los problemas, intenta limpiar la caché de Vite:
+  ```bash
   npm run build -- --force
+  ```
 
 
 ### 8. Desarrollado por
