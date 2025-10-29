@@ -1,7 +1,7 @@
-# 📌 Proyecto Quejas-Boyacá - Taller Quejas - Sistema de Registro de Quejas
+# Proyecto Quejas-Boyacá - Taller Quejas - Sistema de Registro de Quejas
 
-El sistema permite **registrar quejas relacionadas con entidades públicas de la región de Boyacá**,  
-visualizar las quejas asociadas a cada entidad y **generar reportes detallados** por institución.  
+El sistema permite **registrar quejas relacionadas con entidades públicas de la región de Boyacá**,
+visualizar las quejas asociadas a cada entidad y **generar reportes detallados** por institución.
 
 🔗 **Enlace al despliegue:** [Proyecto Quejas-Boyacá](https://taller-quejas.vercel.app/)
 
@@ -14,34 +14,33 @@ visualizar las quejas asociadas a cada entidad y **generar reportes detallados**
 
 ## 🚀 Tecnologías
 
-- **Lenguaje principal:** Java 21  
-- **Framework backend:** Spring Boot 3.5.4, Spring Data JPA (API REST, seguridad, persistencia con Hibernate)  
-- **Base de datos:** MySQL 8.0 (conexión mediante Spring Data JPA)  
-- **Hosting de BD:** Railway  
-- **Frontend:** React 18 + Vite  
-- **Gestor de dependencias backend:** Maven  
-- **Estilos frontend:** CSS  
-- **Librerías frontend:** Axios (peticiones HTTP)  
-- **Control de versiones:** Git + GitHub  
-- **Deployment:** Railway (Backend + Frontend + Base de Datos)  
+- **Lenguaje principal:** Java 21
+- **Framework backend:** Spring Boot 3.5.4, Spring Data JPA (API REST, seguridad, persistencia con Hibernate)
+- **Base de datos:** MySQL 8.0 (conexión mediante Spring Data JPA)
+- **Hosting de BD:** Railway
+- **Frontend:** React 18 + Vite
+- **Gestor de dependencias backend:** Maven
+- **Estilos frontend:** CSS
+- **Librerías frontend:** Axios (peticiones HTTP)
+- **Control de versiones:** Git + GitHub
+- **Deployment:** Railway (Backend + Frontend + Base de Datos)
 
 ---
 
 ## ⚙️ Requisitos previos (para uso en local)
 
-Antes de instalar y ejecutar el proyecto, asegúrate de tener:  
+Antes de instalar y ejecutar el proyecto, asegúrate de tener:
 
-- **MySQL** v8 o superior  
-- **Java JDK** 17 o superior  
-- **Node.js** v18 o superior (incluye npm)  
-- **Maven**  
+- **MySQL** v8 o superior
+- **Java JDK** 17 o superior
+- **Node.js** v18 o superior (incluye npm)
+- **Maven**
 
 ---
 
 ## 🔧 Instalación y configuración (uso en local)
 
 ### 1. Clonar el repositorio
-
 ```bash
   git clone https://github.com/grupo-Software-2/TALLER_QUEJAS.git
   cd TALLER_QUEJAS
@@ -154,3 +153,4 @@ Limpiar caché:
 ### 9. Licencia
 
 Este proyecto es desarrollado con fines académicos para la Universidad Pedagógica y Tecnológica de Colombia (UPTC).
+
