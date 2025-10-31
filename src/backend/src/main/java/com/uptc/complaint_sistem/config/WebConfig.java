@@ -1,11 +1,10 @@
 package com.uptc.complaint_sistem.config;
 
+import com.uptc.complaint_sistem.security.AuthInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import com.uptc.complaint_sistem.security.AuthInterceptor;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -23,10 +22,10 @@ public class WebConfig implements WebMvcConfigurer {
                 .addPathPatterns("/api/**")
                 // Excluye rutas públicas
                 .excludePathPatterns(
-                    "/api/verify-captcha",
-                    "/api/complaints",
-                    "/api/complaints/*",
-                    "/api/answers/**"
+                        "/api/verify-captcha",
+                        "/api/complaints",
+                        "/api/complaints/*",
+                        "/api/answers/**"
                 );
     }
 }

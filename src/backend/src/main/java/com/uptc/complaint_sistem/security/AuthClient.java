@@ -11,9 +11,8 @@ import java.util.Map;
 @Component
 public class AuthClient {
 
-    private final RestTemplate restTemplate;
-
     private static final String AUTH_BASE_URL = "https://auth-quejas-boyaca.onrender.com";
+    private final RestTemplate restTemplate;
 
     @Autowired
     public AuthClient(RestTemplate restTemplate) {
@@ -21,23 +20,29 @@ public class AuthClient {
     }
 
     public boolean validateSession(String token) {
-        String url = AUTH_BASE_URL + "/validate-session";
+        String url = AUTH_BASE_URL + "/api/auth/validate-session";
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
         HttpEntity<Void> request = new HttpEntity<>(headers);
-
-        ResponseEntity<Void> response;
         try {
-            response = restTemplate.exchange(url, HttpMethod.GET, request, Void.class);
+            ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, request, Map.class);
+
             return response.getStatusCode().is2xxSuccessful();
         } catch (RestClientException e) {
+            System.err.println("Error validando sesión: " + e.getMessage());
+            if (e instanceof org.springframework.web.client.HttpClientErrorException) {
+                org.springframework.web.client.HttpClientErrorException httpError =
+                        (org.springframework.web.client.HttpClientErrorException) e;
+                System.err.println("Status: " + httpError.getStatusCode());
+                System.err.println("Response: " + httpError.getResponseBodyAsString());
+            }
             return false;
         }
     }
 
     public boolean verifyPassword(String token, String password) {
-        String url = AUTH_BASE_URL + "api/auth/verify-password";
+        String url = AUTH_BASE_URL + "/api/auth/verify-password";
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
@@ -47,12 +52,17 @@ public class AuthClient {
         HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
 
         try {
-            System.out.println("🔑 Verificando password en AuthService...");
-            System.out.println("➡️ URL: " + url);
-            System.out.println("➡️ Token: " + token);
-            ResponseEntity<Void> response = restTemplate.exchange(url, HttpMethod.POST, request, Void.class);
+            ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.POST, request, Map.class);
+
             return response.getStatusCode().is2xxSuccessful();
         } catch (RestClientException e) {
+            System.err.println("Error validando password: " + e.getMessage());
+            if (e instanceof org.springframework.web.client.HttpClientErrorException) {
+                org.springframework.web.client.HttpClientErrorException httpError =
+                        (org.springframework.web.client.HttpClientErrorException) e;
+                System.err.println("Status: " + httpError.getStatusCode());
+                System.err.println("Response: " + httpError.getResponseBodyAsString());
+            }
             return false;
         }
     }

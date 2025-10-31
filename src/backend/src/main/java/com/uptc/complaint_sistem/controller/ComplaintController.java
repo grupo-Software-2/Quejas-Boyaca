@@ -1,36 +1,23 @@
 package com.uptc.complaint_sistem.controller;
 
-import java.util.List;
-import java.util.Map;
-
 import com.uptc.complaint_sistem.dto.ComplaintDTO;
+import com.uptc.complaint_sistem.event.ReportViewedEvent;
+import com.uptc.complaint_sistem.model.PublicEntity;
 import com.uptc.complaint_sistem.security.AuthClient;
+import com.uptc.complaint_sistem.service.ComplaintService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.uptc.complaint_sistem.event.ReportViewedEvent;
-import com.uptc.complaint_sistem.model.Complaint;
-import com.uptc.complaint_sistem.model.PublicEntity;
-import com.uptc.complaint_sistem.service.ComplaintService;
-
-import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/complaints")
@@ -87,6 +74,13 @@ public class ComplaintController {
         return ResponseEntity.ok(complaints);
     }
 
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<ComplaintDTO> getComplaintById(@PathVariable Long id) {
+        return service.getById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/{entity}")
     public ResponseEntity<List<ComplaintDTO>> getComplaintsByEntity(@PathVariable PublicEntity entity,
                                                                     HttpServletRequest request) {
@@ -118,11 +112,37 @@ public class ComplaintController {
         return ResponseEntity.ok(complaints);
     }
 
-    @GetMapping("/detail/{id}")
-    public ResponseEntity<ComplaintDTO> getComplaintById(@PathVariable Long id) {
-        return service.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @PutMapping("/edit/{id}")
+    public ResponseEntity<?> updateComplaint(
+            @PathVariable Long id,
+            @RequestHeader("Authorization") String authorizationHeader,
+            @Valid @RequestBody ComplaintDTO updatedComplaint) {
+
+        try {
+            if (!authorizationHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Token invalido"));
+            }
+
+            String token = authorizationHeader.substring(7);
+
+            boolean sessionValid = authClient.validateSession(token);
+            if (!sessionValid) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "sesion invalido"));
+            }
+
+            ComplaintDTO updated = service.updateComplaint(id, updatedComplaint);
+            return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error al actualizar la queja"));
+        }
     }
 
     @DeleteMapping("/delete/{id}")
@@ -143,16 +163,21 @@ public class ComplaintController {
 
             String token = authorizationHeader.substring(7);
 
-            boolean valid = authClient.verifyPassword(token, password);
-
-            if (!valid) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Contrasenia incorrecta"));
+            boolean sessionValid = authClient.validateSession(token);
+            if (!sessionValid) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Sesión invalida o expirada"));
             }
 
-            service.deleteComplaint(id, password);
+            boolean passwordValid = authClient.verifyPassword(token, password);
+
+            if (!passwordValid) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Contraseña incorrecta"));
+            }
+
+            service.deleteComplaint(id);
             return ResponseEntity.ok().body(Map.of("message", "Queja eliminada exitosamente"));
-        } catch (SecurityException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Contrasenia incorrecta"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Queja no encontrada"));
         } catch (IllegalStateException e) {
@@ -168,11 +193,11 @@ public class ComplaintController {
             String userAgent = request.getHeader("User-Agent");
 
             ReportViewedEvent event = new ReportViewedEvent(
-                this,
-                ipAddress,
-                userAgent,
-                totalComplaints,
-                reportType
+                    this,
+                    ipAddress,
+                    userAgent,
+                    totalComplaints,
+                    reportType
             );
 
             eventPublisher.publishEvent(event);

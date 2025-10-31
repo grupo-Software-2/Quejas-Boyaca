@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(SecurityException.class)
-    public ResponseEntity<ApiResponse<Void>>  handleSecurityException(SecurityException ex) {
+    public ResponseEntity<ApiResponse<Void>> handleSecurityException(SecurityException ex) {
         ApiResponse<Void> response = ApiResponse.error(ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }

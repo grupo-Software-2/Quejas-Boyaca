@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import DeleteComplaintModal from "./DeleteComplaintModal";
+import EditComplaintModal from "./EditComplaintModal";
 import AnswerSection from "./AnswerSection";
 import { complaintsAPI, protectedComplaintsAPI } from "../services/api";
 
@@ -26,6 +27,10 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [complaintToDelete, setComplaintToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [complaintToEdit, setComplaintToEdit] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   const pageSize = 10;
 
@@ -92,15 +97,34 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
     } finally { setIsDeleting(false); }
   };
 
-  const handleEditClick = async (updatedComplaint) => {
+  const handleEditClick = (complaint) => {
+    setComplaintToEdit(complaint);
+    setShowEditModal(true);
+  };
+
+  const handleCancelEdit = () => {
+    setComplaintToEdit(null);
+    setShowEditModal(false);
+  };
+
+  const handleConfirmEdit = async (updatedData) => {
+    if (!isAuthenticated || !sessionId) {
+      alert("Sesión no válida. Por favor, inicie sesión nuevamente.");
+      return;
+    }
+
+    setIsEditing(true);
+
     try {
-      await protectedComplaintsAPI.editComplaint(updatedComplaint.id, updatedComplaint);
-      alert("Queja editada correctamente.");
+      await protectedComplaintsAPI.editComplaint(updatedData.id, updatedData);
+      alert("Queja editada exitosamente.");
+      setShowEditModal(false);
+      setComplaintToEdit(null);
       loadComplaints();
     } catch (error) {
-      console.error("Error al editar:", error);
+      console.error("Error al editar la queja:", error);
       alert(error.response?.data?.error || "Error al editar la queja.");
-    }
+    } finally { setIsEditing(false); }
   };
 
   return (
@@ -194,6 +218,16 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
           onConfirm={handleConfirmDelete}
           onCancel={handleCancelDelete}
           isDeleting={isDeleting}
+        />
+      )}
+
+      {showEditModal && (
+        <EditComplaintModal
+          complaint={complaintToEdit}
+          normalizeEntityName={normalizeEntityName}
+          onConfirm={handleConfirmEdit}
+          onCancel={handleCancelEdit}
+          isSubmitting={isEditing}
         />
       )}
     </div>

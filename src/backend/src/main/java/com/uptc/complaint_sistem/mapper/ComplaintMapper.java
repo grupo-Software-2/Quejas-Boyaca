@@ -5,7 +5,6 @@ import com.uptc.complaint_sistem.dto.ComplaintDTO;
 import com.uptc.complaint_sistem.model.Complaint;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

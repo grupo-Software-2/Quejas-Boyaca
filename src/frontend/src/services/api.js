@@ -30,15 +30,23 @@ const complaintsClient = axios.create({
   withCredentials: true,
 });
 
-[authClient, complaintsClient].forEach((client) => {
-  client.interceptors.request.use((config) => {
-    const sessionId = localStorage.getItem("sessionId");
-    if (sessionId) {
-      config.headers["Session-Id"] = sessionId;
-    }
-    return config;
-  });
+complaintsClient.interceptors.request.use((config) => {
+  const sessionId = localStorage.getItem('sessionId');
+  if (sessionId) {
+    config.headers['Authorization'] = `Bearer ${sessionId}`;
+  }
+  return config;
 });
+
+complaintsClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      window.dispatchEvent(new Event("unauthorized"));
+    }
+    return Promise.reject(error);
+  }
+);
 
 // ============================
 // ENDPOINTS AUTH
@@ -77,13 +85,32 @@ export const complaintsAPI = {
 // ============================
 export const protectedComplaintsAPI = {
   deleteComplaint: async (id, password) => {
+    const sessionId = localStorage.getItem('sessionId');
+
+    if (!sessionId) {
+      throw new Error("No hay sesión disponible. Por favor, inicie sesión.");
+    }
+
     return complaintsClient.delete(`/api/complaints/delete/${id}`, {
+      headers: {
+        Authorization: `Bearer ${sessionId}`,
+      },
       data: { password },
     });
   },
 
   editComplaint: async (id, updatedData) => {
-    complaintsClient.put(`/api/complaints/edit/${id}`, updatedData);
+    const sessionId = localStorage.getItem('sessionId');
+
+    if (!sessionId) {
+      throw new Error("No hay sesión disponible. Por favor, inicie sesión.");
+    }
+
+    return complaintsClient.put(`/api/complaints/edit/${id}`, updatedData, {
+      headers: {
+        Authorization: `Bearer ${sessionId}`,
+      },
+    });
   },
 };
 

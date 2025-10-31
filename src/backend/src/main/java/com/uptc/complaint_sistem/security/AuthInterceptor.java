@@ -1,10 +1,9 @@
 package com.uptc.complaint_sistem.security;
 
-import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.HandlerInterceptor;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component
 public class AuthInterceptor implements HandlerInterceptor {
@@ -20,6 +19,14 @@ public class AuthInterceptor implements HandlerInterceptor {
                              HttpServletResponse response,
                              Object handler) throws Exception {
 
+        String method = request.getMethod();
+        String path = request.getRequestURI();
+        System.out.println("Intercepto: " + method + " " + path);
+
+        if ("OPTIONS".equalsIgnoreCase(method)) {
+            return true;
+        }
+
         String token = request.getHeader("Authorization");
 
         if (token == null || token.isEmpty()) {
@@ -29,13 +36,20 @@ public class AuthInterceptor implements HandlerInterceptor {
 
         token = token.replace("Bearer ", "");
 
-        boolean valid = authClient.validateSession(token);
+        try {
+            boolean valid = authClient.validateSession(token);
 
-        if (!valid) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
+            if (!valid) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
+                return false;
+            }
+
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    "Error validating session: " + e.getMessage());
             return false;
         }
-
-        return true;
     }
 }

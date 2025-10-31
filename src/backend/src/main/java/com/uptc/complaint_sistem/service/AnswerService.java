@@ -1,11 +1,5 @@
 package com.uptc.complaint_sistem.service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.uptc.complaint_sistem.dto.AnswerDTO;
 import com.uptc.complaint_sistem.mapper.AnswerMapper;
 import com.uptc.complaint_sistem.model.Answer;
@@ -13,6 +7,11 @@ import com.uptc.complaint_sistem.model.Complaint;
 import com.uptc.complaint_sistem.model.ComplaintStatus;
 import com.uptc.complaint_sistem.repository.AnswerRepository;
 import com.uptc.complaint_sistem.repository.ComplaintRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AnswerService {
