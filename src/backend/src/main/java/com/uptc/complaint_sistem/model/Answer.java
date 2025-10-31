@@ -1,18 +1,9 @@
 package com.uptc.complaint_sistem.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
-
-import com.fasterxml.jackson.annotation.JsonBackReference; 
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "answers")
@@ -31,11 +22,12 @@ public class Answer {
     // Relación de muchos a uno con Complaint
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "complaint_id", nullable = false)
-    @JsonBackReference 
+    @JsonBackReference
     private Complaint complaint;
 
     // Constructores, Getters y Setters
-    public Answer() {}
+    public Answer() {
+    }
 
     public Answer(String message, Complaint complaint) {
         this.message = message;

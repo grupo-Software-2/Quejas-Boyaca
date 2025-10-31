@@ -1,28 +1,23 @@
 package com.uptc.complaint_sistem.service;
 
-import java.util.List;
-import java.util.Optional;
-
 import com.uptc.complaint_sistem.dto.ComplaintDTO;
 import com.uptc.complaint_sistem.mapper.ComplaintMapper;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
 import com.uptc.complaint_sistem.model.Complaint;
 import com.uptc.complaint_sistem.model.PublicEntity;
 import com.uptc.complaint_sistem.repository.ComplaintRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
 public class ComplaintService {
     private final ComplaintRepository repository;
     private final ComplaintMapper mapper;
-
-    @Value("${admin.delete.password}")
-    private String adminPassword;
 
     public ComplaintService(ComplaintRepository repository, ComplaintMapper mapper) {
         this.repository = repository;
@@ -71,20 +66,38 @@ public class ComplaintService {
                 .map(mapper::toComplaintDTO);
     }
 
-    public boolean deleteComplaint(Long id, String password) {
-        if (!adminPassword.equals(password)) {
-            throw new SecurityException("Contrasenia Incorrecta");
-        }
+    public boolean deleteComplaint(Long id) {
         Optional<Complaint> complaintOpt = repository.findById(id);
         if (complaintOpt.isEmpty()) {
             throw new IllegalArgumentException("Queja no encontrada");
         }
         Complaint complaint = complaintOpt.get();
         if (complaint.isDeleted()) {
-            throw new IllegalStateException("La queja ya fue eliminada");
+            throw new IllegalArgumentException("La queja esta eliminada");
         }
         complaint.setDeleted(true);
         repository.save(complaint);
         return true;
+    }
+
+    public ComplaintDTO updateComplaint(Long id, ComplaintDTO updatedDTO) {
+        Optional<Complaint> complaintOpt = repository.findById(id);
+
+        if (complaintOpt.isEmpty()) {
+            throw new IllegalArgumentException("Queja no encontrada con ID: " + id);
+        }
+
+        Complaint complaint = complaintOpt.get();
+
+        if (complaint.isDeleted()) {
+            throw new IllegalArgumentException("No se puede editar una queja eliminada");
+        }
+
+        if (updatedDTO.getText() != null && !updatedDTO.getText().isEmpty()) {
+            complaint.setText(updatedDTO.getText());
+        }
+
+        Complaint updated = repository.save(complaint);
+        return mapper.toComplaintDTO(updated);
     }
 }
