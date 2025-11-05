@@ -30,8 +30,7 @@ function App() {
     return entityNames[entityCode] || entityCode.replace(/_/g, " ");
   };
 
-  const [currentPage, setCurrentPage] = useState("home");
-  const [captchaPassed, setCaptchaPassed] = useState(false);
+  const [currentPage, setCurrentPage] = useState("home"); 
   const [authView, setAuthView] = useState("login");
   const [isGuest, setIsGuest] = useState(false);
 
@@ -196,7 +195,7 @@ function App() {
             </button>
 
             <button
-              onClick={() => { setCurrentPage("report"); setCaptchaPassed(false); }}
+              onClick={() => { setCurrentPage("report")}}
               style={{
                 margin: "5px",
                 padding: "12px 20px",
@@ -243,29 +242,10 @@ function App() {
         )}
 
         {currentPage === "report" && !isGuest && (
-          captchaPassed ? (
-            <ComplaintReport
-              entities={entities}
-              normalizeEntityName={normalizeEntityName}
-            />
-          ) : (
-            <div style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              marginTop: "20px",
-              padding: "20px",
-              backgroundColor: "#f8f9fa",
-              borderRadius: "8px",
-              border: "1px solid #ddd",
-              textAlign: "center"
-            }}>
-              <h3 style={{ color: "#000" }}>
-                Verifica que no eres un robot antes de ver el reporte
-              </h3>
-              <CaptchaForm onVerify={setCaptchaPassed} />
-            </div>
-          )
+          <ComplaintReport
+            entities={entities}
+            normalizeEntityName={normalizeEntityName}
+          />
         )}
 
         {currentPage === "home" && !isGuest && (
