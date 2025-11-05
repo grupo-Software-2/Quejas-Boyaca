@@ -113,14 +113,6 @@ export const protectedComplaintsAPI = {
     });
   },
 };
-
-// ============================
-// ENDPOINT CAPTCHA
-// ============================
-export const captchaAPI = {
-  verifyCaptcha: (token) => complaintsClient.post('/api/verify-captcha', { token }),
-};
-
 // ============================
 // EXPORT
 // ============================

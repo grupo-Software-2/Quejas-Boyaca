@@ -3,7 +3,6 @@ import { useAuth } from "./context/AuthContext";
 import ComplaintForm from "./components/ComplaintForm";
 import ComplaintList from "./components/ComplaintList";
 import ComplaintReport from "./components/ComplaintReport";
-import CaptchaForm from "./components/CaptchaForm";
 import Login from "./components/Login";
 import Register from "./components/Register";
 
