@@ -29,7 +29,7 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of("https://taller-quejas.vercel.app")); // tu frontend
+        config.setAllowedOrigins(List.of("https://taller-quejas.vercel.app, http://localhost:5173")); // tu frontend
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization", "Session-Id"));
