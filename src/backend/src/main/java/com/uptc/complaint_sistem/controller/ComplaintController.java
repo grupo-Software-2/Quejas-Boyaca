@@ -1,13 +1,13 @@
 package com.uptc.complaint_sistem.controller;
 
 import com.uptc.complaint_sistem.dto.ComplaintDTO;
-import com.uptc.complaint_sistem.event.ReportViewedEvent;
+import com.uptc.complaint_sistem.events.dto.ReportViewedEventDTO;
+import com.uptc.complaint_sistem.events.publisher.EventPublisher;
 import com.uptc.complaint_sistem.model.PublicEntity;
 import com.uptc.complaint_sistem.security.AuthClient;
 import com.uptc.complaint_sistem.service.ComplaintService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,10 +27,10 @@ import java.util.Map;
 public class ComplaintController {
 
     private final ComplaintService service;
-    private final ApplicationEventPublisher eventPublisher;
+    private final EventPublisher eventPublisher;
     private final AuthClient authClient;
 
-    public ComplaintController(ComplaintService service, ApplicationEventPublisher eventPublisher, AuthClient authClient) {
+    public ComplaintController(ComplaintService service, EventPublisher eventPublisher, AuthClient authClient) {
         this.service = service;
         this.eventPublisher = eventPublisher;
         this.authClient = authClient;
@@ -192,16 +192,14 @@ public class ComplaintController {
             String ipAddress = getClientIpAddress(request);
             String userAgent = request.getHeader("User-Agent");
 
-            ReportViewedEvent event = new ReportViewedEvent(
-                    this,
-                    ipAddress,
-                    userAgent,
-                    totalComplaints,
-                    reportType
-            );
+            ReportViewedEventDTO event = ReportViewedEventDTO.builder()
+                    .ipAddress(ipAddress)
+                    .userAgent(userAgent)
+                    .totalComplaints(totalComplaints)
+                    .reportType(reportType)
+                    .build();
 
-            eventPublisher.publishEvent(event);
-
+            eventPublisher.publishReportViewedEvent(event);
         } catch (Exception e) {
             System.err.println("Error publishing report viewed event: " + e.getMessage());
         }
