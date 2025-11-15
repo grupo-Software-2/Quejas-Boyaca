@@ -22,6 +22,7 @@ public class ReportViewedEventDTO {
         this.eventType = "REPORT_VIEWED";
         this.timestamp = LocalDateTime.now();
         this.source = "complaint-system";
+        this.reportType = "REPORTE_GENERAL";
     }
 
     public static Builder builder() {
@@ -116,7 +117,7 @@ public class ReportViewedEventDTO {
         }
 
         public Builder reportType(String reportType) {
-            dto.reportType = reportType;
+            dto.reportType = (reportType != null && !reportType.isEmpty()) ? reportType : "REPORTE_GENERAL";
             return this;
         }
 

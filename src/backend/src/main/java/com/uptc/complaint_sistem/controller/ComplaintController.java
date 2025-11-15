@@ -196,7 +196,7 @@ public class ComplaintController {
                     .ipAddress(ipAddress)
                     .userAgent(userAgent)
                     .totalComplaints(totalComplaints)
-                    .reportType(reportType)
+                    .reportType(reportType != null ? reportType : "REPORTE_GENERAL")
                     .build();
 
             eventPublisher.publishReportViewedEvent(event);
