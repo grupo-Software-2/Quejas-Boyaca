@@ -1,13 +1,13 @@
 package com.uptc.complaint_sistem.controller;
 
 import com.uptc.complaint_sistem.dto.ComplaintDTO;
-import com.uptc.complaint_sistem.event.ReportViewedEvent;
+import com.uptc.complaint_sistem.events.dto.ReportViewedEventDTO;
+import com.uptc.complaint_sistem.events.publisher.EventPublisher;
 import com.uptc.complaint_sistem.model.PublicEntity;
 import com.uptc.complaint_sistem.security.AuthClient;
 import com.uptc.complaint_sistem.service.ComplaintService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,10 +27,10 @@ import java.util.Map;
 public class ComplaintController {
 
     private final ComplaintService service;
-    private final ApplicationEventPublisher eventPublisher;
+    private final EventPublisher eventPublisher;
     private final AuthClient authClient;
 
-    public ComplaintController(ComplaintService service, ApplicationEventPublisher eventPublisher, AuthClient authClient) {
+    public ComplaintController(ComplaintService service, EventPublisher eventPublisher, AuthClient authClient) {
         this.service = service;
         this.eventPublisher = eventPublisher;
         this.authClient = authClient;
@@ -50,7 +50,7 @@ public class ComplaintController {
     @GetMapping
     public ResponseEntity<List<ComplaintDTO>> getAllComplaints(HttpServletRequest request) {
         List<ComplaintDTO> complaints = service.getAll();
-        publishReportViewedEvent(request, complaints.size(), "REPORTE GENERAL");
+        publishReportViewedEvent(request, complaints.size(), "REPORTE_GENERAL");
         return ResponseEntity.ok(complaints);
     }
 
@@ -69,7 +69,7 @@ public class ComplaintController {
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<ComplaintDTO> complaints = service.getAllPaginated(pageable);
 
-        publishReportViewedEvent(request, (int) complaints.getTotalElements(), "REPORTE GENERAL PAGINADO");
+        publishReportViewedEvent(request, (int) complaints.getTotalElements(), "REPORTE_GENERAL_PAGINADO");
 
         return ResponseEntity.ok(complaints);
     }
@@ -86,7 +86,7 @@ public class ComplaintController {
                                                                     HttpServletRequest request) {
 
         List<ComplaintDTO> complaints = service.getByEntity(entity);
-        publishReportViewedEvent(request, complaints.size(), "REPORTE DE LA ENTIDAD" + entity.name());
+        publishReportViewedEvent(request, complaints.size(), "REPORTE_DE_LA_ENTIDAD:_" + entity.name());
         return ResponseEntity.ok(complaints);
     }
 
@@ -107,7 +107,7 @@ public class ComplaintController {
         Page<ComplaintDTO> complaints = service.getByEntityPaginated(entity, pageable);
 
         publishReportViewedEvent(request, (int) complaints.getTotalElements(),
-                "REPORTE DE LA ENTIDAD" + entity.name());
+                "REPORTE_DE_LA_ENTIDAD_" + entity.name());
 
         return ResponseEntity.ok(complaints);
     }
@@ -192,16 +192,14 @@ public class ComplaintController {
             String ipAddress = getClientIpAddress(request);
             String userAgent = request.getHeader("User-Agent");
 
-            ReportViewedEvent event = new ReportViewedEvent(
-                    this,
-                    ipAddress,
-                    userAgent,
-                    totalComplaints,
-                    reportType
-            );
+            ReportViewedEventDTO event = ReportViewedEventDTO.builder()
+                    .ipAddress(ipAddress)
+                    .userAgent(userAgent)
+                    .totalComplaints(totalComplaints)
+                    .reportType(reportType != null ? reportType : "REPORTE_GENERAL")
+                    .build();
 
-            eventPublisher.publishEvent(event);
-
+            eventPublisher.publishReportViewedEvent(event);
         } catch (Exception e) {
             System.err.println("Error publishing report viewed event: " + e.getMessage());
         }

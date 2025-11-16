@@ -1,44 +1,112 @@
-package com.uptc.complaint_sistem.event;
+package com.uptc.complaint_sistem.events.dto;
 
-import org.springframework.context.ApplicationEvent;
-
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 
-public class ReportViewedEvent extends ApplicationEvent {
-    private final String userIpAddress;
-    private final LocalDateTime viewedAt;
-    private final String userAgent;
-    private final int totalComplaints;
-    private final String reportType;
+public class ReportViewedEventDTO {
 
-    public ReportViewedEvent(Object source, String userIpAddress, String userAgent,
-                             int totalComplaints, String reportType) {
-        super(source);
-        this.userIpAddress = userIpAddress;
-        this.viewedAt = LocalDateTime.now();
-        this.userAgent = userAgent;
-        this.totalComplaints = totalComplaints;
-        this.reportType = reportType;
+    @JsonProperty("eventId")
+    private String eventId;
+
+    @JsonProperty("eventType")
+    private String eventType;
+
+    @JsonProperty("ipAddress")
+    private String ipAddress;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonProperty("timestamp")
+    private LocalDateTime timestamp;
+
+    @JsonProperty("userAgent")
+    private String userAgent;
+
+    @JsonProperty("totalComplaints")
+    private int totalComplaints;
+
+    @JsonProperty("reportType")  // ← IMPORTANTE
+    private String reportType;
+
+    @JsonProperty("source")
+    private String source;
+
+    public ReportViewedEventDTO() {
+        this.eventType = "REPORT_VIEWED";
+        this.timestamp = LocalDateTime.now();
+        this.source = "complaint-system";
+        this.reportType = "REPORTE_GENERAL";
     }
 
-    // Getters
-    public String getUserIpAddress() {
-        return userIpAddress;
+    public String getEventId() { return eventId; }
+    public void setEventId(String eventId) { this.eventId = eventId; }
+
+    public String getEventType() { return eventType; }
+    public void setEventType(String eventType) { this.eventType = eventType; }
+
+    public String getIpAddress() { return ipAddress; }
+    public void setIpAddress(String ipAddress) { this.ipAddress = ipAddress; }
+
+    public LocalDateTime getTimestamp() { return timestamp; }
+    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+
+    public String getUserAgent() { return userAgent; }
+    public void setUserAgent(String userAgent) { this.userAgent = userAgent; }
+
+    public int getTotalComplaints() { return totalComplaints; }
+    public void setTotalComplaints(int totalComplaints) { this.totalComplaints = totalComplaints; }
+
+    public String getReportType() { return reportType; }
+    public void setReportType(String reportType) { this.reportType = reportType; }
+
+    public String getSource() { return source; }
+    public void setSource(String source) { this.source = source; }
+
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public LocalDateTime getViewedAt() {
-        return viewedAt;
-    }
+    public static class Builder {
+        private final ReportViewedEventDTO dto = new ReportViewedEventDTO();
 
-    public String getUserAgent() {
-        return userAgent;
-    }
+        public Builder eventId(String eventId) {
+            dto.eventId = eventId;
+            return this;
+        }
 
-    public int getTotalComplaints() {
-        return totalComplaints;
-    }
+        public Builder ipAddress(String ipAddress) {
+            dto.ipAddress = ipAddress;
+            return this;
+        }
 
-    public String getReportType() {
-        return reportType;
+        public Builder userAgent(String userAgent) {
+            dto.userAgent = userAgent;
+            return this;
+        }
+
+        public Builder totalComplaints(int totalComplaints) {
+            dto.totalComplaints = totalComplaints;
+            return this;
+        }
+
+        public Builder reportType(String reportType) {
+            // Asegurar que nunca sea null
+            dto.reportType = (reportType != null && !reportType.isEmpty()) ? reportType : "REPORTE_GENERAL";
+            return this;
+        }
+
+        public ReportViewedEventDTO build() {
+            if (dto.eventId == null || dto.eventId.isEmpty()) {
+                dto.eventId = java.util.UUID.randomUUID().toString();
+            }
+            if (dto.timestamp == null) {
+                dto.timestamp = LocalDateTime.now();
+            }
+            // IMPORTANTE: Asegurar que reportType nunca sea null
+            if (dto.reportType == null || dto.reportType.isEmpty()) {
+                dto.reportType = "REPORTE_GENERAL";
+            }
+            return dto;
+        }
     }
 }
