@@ -50,7 +50,7 @@ public class ComplaintController {
     @GetMapping
     public ResponseEntity<List<ComplaintDTO>> getAllComplaints(HttpServletRequest request) {
         List<ComplaintDTO> complaints = service.getAll();
-        publishReportViewedEvent(request, complaints.size(), "REPORTE GENERAL");
+        publishReportViewedEvent(request, complaints.size(), "REPORTE_GENERAL");
         return ResponseEntity.ok(complaints);
     }
 
@@ -69,7 +69,7 @@ public class ComplaintController {
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<ComplaintDTO> complaints = service.getAllPaginated(pageable);
 
-        publishReportViewedEvent(request, (int) complaints.getTotalElements(), "REPORTE GENERAL PAGINADO");
+        publishReportViewedEvent(request, (int) complaints.getTotalElements(), "REPORTE_GENERAL_PAGINADO");
 
         return ResponseEntity.ok(complaints);
     }
@@ -86,7 +86,7 @@ public class ComplaintController {
                                                                     HttpServletRequest request) {
 
         List<ComplaintDTO> complaints = service.getByEntity(entity);
-        publishReportViewedEvent(request, complaints.size(), "REPORTE DE LA ENTIDAD" + entity.name());
+        publishReportViewedEvent(request, complaints.size(), "REPORTE_DE_LA_ENTIDAD:_" + entity.name());
         return ResponseEntity.ok(complaints);
     }
 
@@ -107,7 +107,7 @@ public class ComplaintController {
         Page<ComplaintDTO> complaints = service.getByEntityPaginated(entity, pageable);
 
         publishReportViewedEvent(request, (int) complaints.getTotalElements(),
-                "REPORTE DE LA ENTIDAD" + entity.name());
+                "REPORTE_DE_LA_ENTIDAD_" + entity.name());
 
         return ResponseEntity.ok(complaints);
     }

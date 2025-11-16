@@ -48,6 +48,12 @@ public class EventPublisher {
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
 
+                // DEBUG: Imprimir el JSON que se enviará
+                String jsonPayload = objectMapper.writeValueAsString(event);
+                log.info("=== JSON Payload ===");
+                log.info(jsonPayload);
+                log.info("===================");
+
                 HttpEntity<ReportViewedEventDTO> request = new HttpEntity<>(event, headers);
 
                 log.debug("Publishing event {} to broker", event.getEventId());
