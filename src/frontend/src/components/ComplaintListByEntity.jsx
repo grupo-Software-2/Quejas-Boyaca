@@ -5,13 +5,20 @@ import EditComplaintModal from "./EditComplaintModal";
 import AnswerSection from "./AnswerSection";
 import { complaintsAPI, protectedComplaintsAPI } from "../services/api";
 
-// Estilo según el estado de la queja
+
 const getStatusStyle = (status) => {
   switch (status) {
-    case "Pendiente": return { color: "#FFA500", fontWeight: "bold" };
-    case "Resuelta": return { color: "#28a745", fontWeight: "bold" };
-    case "Rechazada": return { color: "#dc3545", fontWeight: "bold" };
-    default: return {};
+    case "PENDIENTE":
+    case "REVISION":
+      return { color: "#FFA500", fontWeight: "bold" };
+    case "PROCESO":
+      return { color: "#17a2b8", fontWeight: "bold" };
+    case "CERRADA":
+      return { color: "#28a745", fontWeight: "bold" };
+    case "RECHAZADA":
+      return { color: "#dc3545", fontWeight: "bold" };
+    default:
+      return {};
   }
 };
 
@@ -41,10 +48,16 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
     complaintsAPI.getComplaintsByEntity(selectedEntity)
       .then((res) => {
         const data = res.data || [];
-        setAllComplaints(data);
-        const total = Math.ceil(data.length / pageSize);
+        // Normaliza las fechas si vienen en formato string para la visualización
+        const normalizedData = data.map(c => ({
+            ...c,
+            // Asegura que la fecha tenga el formato correcto para new Date()
+            date: c.date || c.createdAt || new Date().toISOString()
+        }));
+        setAllComplaints(normalizedData);
+        const total = Math.ceil(normalizedData.length / pageSize);
         setTotalPages(total);
-        setComplaints(data.slice(page * pageSize, (page + 1) * pageSize));
+        setComplaints(normalizedData.slice(page * pageSize, (page + 1) * pageSize));
       })
       .catch((err) => {
         console.error("Error al cargar quejas:", err);
@@ -58,11 +71,14 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
   useEffect(() => { loadComplaints(); }, [loadComplaints]);
   useEffect(() => { setPage(0); }, [selectedEntity]);
 
-  
+  // Paginación
   const handleNextPage = () => { if (page < totalPages - 1) setPage(page + 1); };
   const handlePreviousPage = () => { if (page > 0) setPage(page - 1); };
   const handlePageChange = (newPage) => setPage(newPage);
 
+  // ===========================
+  // FUNCIONES ELIMINAR / EDITAR
+  // ===========================
   const handleDeleteClick = (complaint) => {
     setComplaintToDelete(complaint);
     setShowDeleteModal(true);
@@ -76,7 +92,7 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
   const handleConfirmDelete = async (password) => {
     if (!complaintToDelete) return;
     if (!isAuthenticated || !sessionId) {
-      alert("Sesión no válida. Por favor, inicie sesión nuevamente.");
+      console.error("Sesión no válida para eliminar.");
       return;
     }
 
@@ -84,13 +100,12 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
 
     try {
       await protectedComplaintsAPI.deleteComplaint(complaintToDelete.id, password);
-      alert("Queja eliminada exitosamente.");
+      console.log("Queja eliminada exitosamente.");
       setShowDeleteModal(false);
       setComplaintToDelete(null);
-      loadComplaints();
+      loadComplaints(); // Recargar la lista
     } catch (error) {
-      console.error("Error al eliminar la queja:", error);
-      alert(error.response?.data?.error || "Error al eliminar la queja.");
+      console.error("Error al eliminar la queja:", error.response?.data?.error || "Error al eliminar la queja.");
     } finally { setIsDeleting(false); }
   };
 
@@ -104,33 +119,35 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
     setShowEditModal(false);
   };
 
+  // Función clave actualizada para la gestión de estado (CUMPLE LA TAREA)
   const handleConfirmEdit = async (updatedData) => {
+    // updatedData contiene: { id, text, status, adminNote }
     if (!isAuthenticated || !sessionId) {
-      alert("Sesión no válida. Por favor, inicie sesión nuevamente.");
+      console.error("Sesión no válida para editar.");
       return;
     }
 
     setIsEditing(true);
 
     try {
+      // Se envía el nuevo estado y la nota para que el backend cree el evento histórico.
       await protectedComplaintsAPI.editComplaint(updatedData.id, updatedData);
-      alert("Queja editada exitosamente.");
+      console.log("Queja gestionada/editada exitosamente.");
       setShowEditModal(false);
       setComplaintToEdit(null);
-      loadComplaints();
+      loadComplaints(); // Recargar la lista para mostrar el nuevo estado
     } catch (error) {
-      console.error("Error al editar la queja:", error);
-      alert(error.response?.data?.error || "Error al editar la queja.");
+      console.error("Error al editar/gestionar la queja:", error.response?.data?.error || "Error al editar la queja.");
     } finally { setIsEditing(false); }
   };
 
   return (
-    <div>
-      <label style={{ color: "#000" }}>Seleccione una entidad:</label>
+    <div style={{ padding: '10px 0' }}>
+      <label style={{ color: "#000", fontWeight: 'bold', marginRight: '10px' }}>Seleccione una entidad:</label>
       <select
         value={selectedEntity}
         onChange={(e) => setSelectedEntity(e.target.value)}
-        style={{ margin: "10px", padding: "5px" }}
+        style={{ margin: "10px 0", padding: "8px", borderRadius: '5px', border: '1px solid #ccc' }}
       >
         <option value="" disabled>Seleccione una entidad</option>
         {entities.map((ent, i) => (
@@ -138,64 +155,71 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
         ))}
       </select>
 
-      <h2 style={{ color: "#000" }}>
+      <h2 style={{ color: "#007bff", marginTop: '20px', borderBottom: '1px solid #eee', paddingBottom: '10px' }}>
         Quejas registradas para: {normalizeEntityName(selectedEntity)}
       </h2>
 
-      {loading && <p>Cargando quejas...</p>}
+      {loading && <p style={{ color: '#000', textAlign: 'center' }}>Cargando quejas...</p>}
 
-      {!loading && (!complaints || complaints.length === 0) ? (
-        <p style={{ color: "#000" }}>No hay quejas registradas para esta entidad.</p>
+      {!loading && selectedEntity && (!complaints || complaints.length === 0) ? (
+        <p style={{ color: "#000", textAlign: 'center', padding: '20px', backgroundColor: '#fff3cd', border: '1px solid #ffc107', borderRadius: '5px' }}>
+          No hay quejas registradas para esta entidad.
+        </p>
       ) : (
         <ul style={{ listStyle: "none", padding: 0 }}>
           {complaints.map((c) => (
             <li key={c.id} style={{
               marginBottom: "15px", padding: "15px", border: "1px solid #ddd",
-              borderRadius: "8px", backgroundColor: "#ffffffff", color: "#000"
+              borderRadius: "8px", backgroundColor: "#ffffffff", color: "#000",
+              boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
             }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", borderBottom: '1px solid #f0f0f0', paddingBottom: '10px', marginBottom: '10px' }}>
                 <div style={{ flex: 1 }}>
-                  <div>
-                    <strong>Queja ID {c.id}:</strong>
-                    {c.status && <span style={{ marginLeft: '10px', ...getStatusStyle(c.status) }}>{c.status}</span>}
+                  <div style={{ fontSize: '16px', fontWeight: 'bold' }}>
+                    Queja ID {c.id}: {c.title || 'Sin título'}
                   </div>
                   <p style={{ margin: '5px 0' }}>{c.text}</p>
-                  <small>{new Date(c.date).toLocaleString()}</small>
+                  <small style={{ color: '#666' }}>
+                    Registrada: {new Date(c.date).toLocaleString()}
+                  </small>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginLeft: '10px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginLeft: '20px', textAlign: 'right' }}>
+                  <span style={{ fontSize: '14px', ...getStatusStyle(c.status) }}>{c.status}</span>
                   <button onClick={() => handleEditClick(c)} style={{
-                    padding: "5px 10px", backgroundColor: "#ffff4bff",
-                    color: "black", border: "none", borderRadius: "5px", cursor: "pointer",
-                  }}>Editar</button>
+                    padding: "5px 10px", backgroundColor: "#007bff",
+                    color: "white", border: "none", borderRadius: "5px", cursor: "pointer",
+                  }}>Gestión / Estado</button>
 
                   <button onClick={() => handleDeleteClick(c)} style={{
-                    padding: "5px 10px", backgroundColor: "#ee5766ff",
-                    color: "black", border: "none", borderRadius: "5px", cursor: "pointer",
+                    padding: "5px 10px", backgroundColor: "#dc3545",
+                    color: "white", border: "none", borderRadius: "5px", cursor: "pointer",
                   }}>Eliminar</button>
                 </div>
               </div>
-
+                
+                {/* Sección de Respuestas/Histórico */}
               <AnswerSection
                 complaintId={c.id}
-                initialAnswers={c.answers}
+                initialAnswers={c.answers} // Asume que 'answers' viene en el objeto de queja
                 onAnswerAdded={loadComplaints}
               />
             </li>
           ))}
         </ul>
       )}
-
+      
+      {/* Paginación */}
       {!loading && complaints.length > 0 && totalPages > 1 && (
         <div style={{ margin: '20px 0', textAlign: 'center' }}>
-          <button onClick={handlePreviousPage} disabled={page === 0} style={{ marginRight: '10px' }}>&laquo; Anterior</button>
+          <button onClick={handlePreviousPage} disabled={page === 0} style={{ marginRight: '10px', padding: '8px 15px', border: '1px solid #ddd', borderRadius: '5px', backgroundColor: page === 0 ? '#eee' : '#fff', cursor: 'pointer' }}>&laquo; Anterior</button>
           {[...Array(totalPages).keys()].map(num => (
             <button
               key={num}
               onClick={() => handlePageChange(num)}
               disabled={page === num}
               style={{
-                margin: '0 5px', padding: '5px 10px',
+                margin: '0 5px', padding: '8px 12px',
                 border: page === num ? '2px solid #007bff' : '1px solid #ddd',
                 backgroundColor: page === num ? '#007bff' : 'white',
                 color: page === num ? 'white' : '#000',
@@ -204,11 +228,12 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
               }}
             >{num + 1}</button>
           ))}
-          <button onClick={handleNextPage} disabled={page === totalPages - 1} style={{ marginLeft: '10px' }}>Siguiente &raquo;</button>
-          <p style={{ marginTop: '10px' }}>Página {page + 1} de {totalPages}</p>
+          <button onClick={handleNextPage} disabled={page === totalPages - 1} style={{ marginLeft: '10px', padding: '8px 15px', border: '1px solid #ddd', borderRadius: '5px', backgroundColor: page === totalPages - 1 ? '#eee' : '#fff', cursor: 'pointer' }}>Siguiente &raquo;</button>
+          <p style={{ marginTop: '10px', fontSize: '14px', color: '#666' }}>Página {page + 1} de {totalPages}</p>
         </div>
       )}
 
+      {/* Modales */}
       {showDeleteModal && (
         <DeleteComplaintModal
           complaint={complaintToDelete}

@@ -1,27 +1,57 @@
 package com.uptc.complaint_sistem.service;
 
-import com.uptc.complaint_sistem.dto.ComplaintDTO;
-import com.uptc.complaint_sistem.mapper.ComplaintMapper;
-import com.uptc.complaint_sistem.model.Complaint;
-import com.uptc.complaint_sistem.model.PublicEntity;
-import com.uptc.complaint_sistem.repository.ComplaintRepository;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+ 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import com.uptc.complaint_sistem.dto.ComplaintDTO;
+import com.uptc.complaint_sistem.mapper.ComplaintMapper;
+import com.uptc.complaint_sistem.model.Complaint;
+import com.uptc.complaint_sistem.model.ComplaintStatus;
+import com.uptc.complaint_sistem.model.PublicEntity;
+import com.uptc.complaint_sistem.repository.ComplaintRepository;
+import com.uptc.complaint_sistem.service.events.QuejaStatusChangeEvent;
 
 @Service
 @Transactional
 public class ComplaintService {
     private final ComplaintRepository repository;
     private final ComplaintMapper mapper;
+    private final EventPublisherService eventPublisherService;
 
-    public ComplaintService(ComplaintRepository repository, ComplaintMapper mapper) {
+    public ComplaintService(ComplaintRepository repository, ComplaintMapper mapper, EventPublisherService eventPublisherService) {
         this.repository = repository;
         this.mapper = mapper;
+        this.eventPublisherService = eventPublisherService;
+    }
+
+    public void changeComplaintStatus(Long complaintId, ComplaintStatus newStatus) {
+        Optional<Complaint> complaintOpt = repository.findById(complaintId);
+
+        if (complaintOpt.isEmpty()) {
+            throw new IllegalArgumentException("Queja no encontrada con ID: " + complaintId);
+        }
+
+        Complaint complaint = complaintOpt.get();
+        String estadoAnterior = complaint.getStatus().name();
+
+        if (complaint.getStatus().equals(newStatus)) {
+            return; 
+        }
+
+        QuejaStatusChangeEvent event = new QuejaStatusChangeEvent(
+            complaintId,
+            estadoAnterior,
+            newStatus.name(), 
+            LocalDateTime.now()
+        );
+
+        eventPublisherService.publishStatusChangeEvent(event);
     }
 
     public Complaint saveComplaint(Complaint complaint) {
@@ -96,7 +126,7 @@ public class ComplaintService {
         if (updatedDTO.getText() != null && !updatedDTO.getText().isEmpty()) {
             complaint.setText(updatedDTO.getText());
         }
-
+        
         Complaint updated = repository.save(complaint);
         return mapper.toComplaintDTO(updated);
     }

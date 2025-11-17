@@ -80,10 +80,11 @@ export const complaintsAPI = {
   createAnswer: (complaintId, message) => complaintsClient.post(`/api/answers/add`, { complaint_id: complaintId, message }),
 };
 
-// ============================
-// ENDPOINTS PROTEGIDOS (Render)
-// ============================
+
 export const protectedComplaintsAPI = {
+
+  getReportComplaints: () => complaintsClient.get('/api/reports/complaints'),
+
   deleteComplaint: async (id, password) => {
     const sessionId = localStorage.getItem('sessionId');
 
@@ -106,14 +107,13 @@ export const protectedComplaintsAPI = {
       throw new Error("No hay sesión disponible. Por favor, inicie sesión.");
     }
 
-    return complaintsClient.put(`/api/complaints/edit/${id}`, updatedData, {
+    // 2. CORREGIDO: Usamos PATCH en lugar de PUT para la edición de estado/gestión
+    return complaintsClient.patch(`/api/complaints/edit/${id}`, updatedData, {
       headers: {
         Authorization: `Bearer ${sessionId}`,
       },
     });
   },
 };
-// ============================
-// EXPORT
-// ============================
+
 export default { authClient, complaintsClient };

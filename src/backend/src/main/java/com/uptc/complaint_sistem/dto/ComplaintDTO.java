@@ -1,13 +1,14 @@
 package com.uptc.complaint_sistem.dto;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 import com.uptc.complaint_sistem.model.ComplaintStatus;
 import com.uptc.complaint_sistem.model.PublicEntity;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 public class ComplaintDTO {
 
@@ -27,10 +28,13 @@ public class ComplaintDTO {
     private List<AnswerDTO> answers;
     private ComplaintStatus status;
 
+    private LocalDateTime fechaFinQueja; 
+    private Long duracionRespuesta;
+
     public ComplaintDTO() {
     }
 
-    public ComplaintDTO(Long id, PublicEntity entity, String text, LocalDateTime date, String ipAddress, boolean deleted, LocalDateTime deletedAt, List<AnswerDTO> answers, ComplaintStatus status) {
+    public ComplaintDTO(Long id, PublicEntity entity, String text, LocalDateTime date, String ipAddress, boolean deleted, LocalDateTime deletedAt, List<AnswerDTO> answers, ComplaintStatus status, LocalDateTime fechaFinQueja, Long duracionRespuesta) {
         this.id = id;
         this.entity = entity;
         this.text = text;
@@ -40,77 +44,42 @@ public class ComplaintDTO {
         this.deletedAt = deletedAt;
         this.answers = answers;
         this.status = status;
+        this.fechaFinQueja = fechaFinQueja;
+        this.duracionRespuesta = duracionRespuesta;
     }
 
-    public Long getId() {
-        return id;
-    }
+    // Getters y Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public PublicEntity getEntity() { return entity; }
+    public void setEntity(PublicEntity entity) { this.entity = entity; }
 
-    public PublicEntity getEntity() {
-        return entity;
-    }
+    public String getText() { return text; }
+    public void setText(String text) { this.text = text; }
 
-    public void setEntity(PublicEntity entity) {
-        this.entity = entity;
-    }
+    public LocalDateTime getDate() { return date; }
+    public void setDate(LocalDateTime date) { this.date = date; }
 
-    public String getText() {
-        return text;
-    }
+    public String getIpAddress() { return ipAddress; }
+    public void setIpAddress(String ipAddress) { this.ipAddress = ipAddress; }
 
-    public void setText(String text) {
-        this.text = text;
-    }
+    public boolean isDeleted() { return deleted; }
+    public void setDeleted(boolean deleted) { this.deleted = deleted; }
 
-    public LocalDateTime getDate() {
-        return date;
-    }
+    public LocalDateTime getDeletedAt() { return deletedAt; }
+    public void setDeletedAt(LocalDateTime deletedAt) { this.deletedAt = deletedAt; }
 
-    public void setDate(LocalDateTime date) {
-        this.date = date;
-    }
+    public List<AnswerDTO> getAnswers() { return answers; }
+    public void setAnswers(List<AnswerDTO> answers) { this.answers = answers; }
 
-    public String getIpAddress() {
-        return ipAddress;
-    }
+    public ComplaintStatus getStatus() { return status; }
+    public void setStatus(ComplaintStatus status) { this.status = status; }
 
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
-    }
+    // --- Getters y Setters de los nuevos campos ---
+    public LocalDateTime getFechaFinQueja() { return fechaFinQueja; }
+    public void setFechaFinQueja(LocalDateTime fechaFinQueja) { this.fechaFinQueja = fechaFinQueja; }
 
-    public boolean isDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
-    }
-
-    public LocalDateTime getDeletedAt() {
-        return deletedAt;
-    }
-
-    public void setDeletedAt(LocalDateTime deletedAt) {
-        this.deletedAt = deletedAt;
-    }
-
-    public List<AnswerDTO> getAnswers() {
-        return answers;
-    }
-
-    public void setAnswers(List<AnswerDTO> answers) {
-        this.answers = answers;
-    }
-
-    public ComplaintStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(ComplaintStatus status) {
-        this.status = status;
-    }
+    public Long getDuracionRespuesta() { return duracionRespuesta; }
+    public void setDuracionRespuesta(Long duracionRespuesta) { this.duracionRespuesta = duracionRespuesta; }
 }

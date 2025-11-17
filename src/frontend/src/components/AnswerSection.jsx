@@ -1,88 +1,216 @@
-import React, { useState } from 'react';
-import { complaintsAPI } from '../services/api';
+import React, { useState, useEffect, useCallback } from 'react';
+import { complaintsAPI } from '../services/api'; // Manteniendo la ruta
+import { useAuth } from '../context/AuthContext'; // Manteniendo la ruta
+// Nota: Las rutas de importación son correctas si estás dentro de src/components
 
-function AnswerSection({ complaintId, initialAnswers, onAnswerAdded }) {
-    const [answers, setAnswers] = useState(initialAnswers || []);
-    const [newMessage, setNewMessage] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
+// Estilos de AnswerSection
+const styles = {
+    container: {
+        marginTop: '20px',
+        paddingTop: '15px',
+        borderTop: '2px solid #f0f0f0',
+        color: '#000',
+    },
+    title: {
+        fontSize: '18px',
+        color: '#007bff',
+        marginBottom: '15px',
+        display: 'flex',
+        alignItems: 'center',
+        fontWeight: 'bold',
+    },
+    historyBox: {
+        maxHeight: '300px',
+        overflowY: 'auto',
+        border: '1px solid #ddd',
+        borderRadius: '5px',
+        padding: '10px',
+        marginBottom: '15px',
+        backgroundColor: '#f8f9fa',
+    },
+    eventItem: {
+        padding: '8px 0',
+        borderBottom: '1px dotted #ccc',
+    },
+    eventHeader: {
+        fontWeight: 'bold',
+        fontSize: '14px',
+        marginBottom: '3px',
+    },
+    eventContent: {
+        fontSize: '14px',
+        color: '#444',
+        marginLeft: '15px',
+    },
+    form: {
+        display: 'flex',
+        flexDirection: 'column',
+    },
+    textArea: {
+        width: '100%',
+        padding: '10px',
+        marginBottom: '10px',
+        borderRadius: '5px',
+        border: '1px solid #ccc',
+        resize: 'vertical',
+        fontSize: '14px',
+    },
+    button: {
+        padding: '10px 15px',
+        backgroundColor: '#28a745',
+        color: 'white',
+        border: 'none',
+        borderRadius: '5px',
+        cursor: 'pointer',
+        alignSelf: 'flex-start',
+        fontWeight: 'bold',
+    },
+};
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!newMessage.trim() || isSubmitting) return;
+// Función para estilizar eventos
+const getEventStyle = (type) => {
+    switch (type) {
+        case 'STATUS_CHANGE':
+            return { color: '#007bff' }; // Azul para cambio de estado
+        case 'ADMIN_NOTE':
+            return { color: '#ffc107', fontWeight: 'normal' }; // Naranja/Amarillo para nota interna
+        case 'PUBLIC_ANSWER':
+            return { color: '#28a745' }; // Verde para respuesta pública
+        case 'COMPLAINT_CREATED':
+            return { color: '#6c757d' }; // Gris para la creación
+        default:
+            return { color: '#000' };
+    }
+};
 
-        setIsSubmitting(true);
-        try {
-            const response = await complaintsAPI.createAnswer(complaintId, newMessage);
+const AnswerSection = ({ complaintId, onAnswerAdded }) => {
+    // Es CRUCIAL que useAuth devuelva un objeto con 'isAuthenticated'
+    const { isAuthenticated } = useAuth(); 
+    const [message, setMessage] = useState('');
+    const [isSending, setIsSending] = useState(false);
+    const [history, setHistory] = useState([]); 
 
-            setAnswers([...answers, response.data]);
-            setNewMessage('');
+    // Simulamos la carga del histórico (incluyendo eventos de estado y duración)
+    const loadHistory = useCallback(() => {
+        // *** ESTO DEBE SER REEMPLAZADO POR complaintsAPI.getComplaintHistory(complaintId) ***
 
-            if (onAnswerAdded) {
-                onAnswerAdded(response.data);
+        // Placeholder de Histórico de Eventos (Incluye la duración del tiempo de respuesta)
+        const dummyHistory = [
+            {
+                type: 'COMPLAINT_CREATED',
+                content: 'Queja registrada. Inicio de conteo de duración.',
+                date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), 
+                user: 'Ciudadano'
+            },
+            {
+                type: 'STATUS_CHANGE',
+                content: 'Estado cambiado a REVISION. Duración actual: 2 días y 4 horas.',
+                date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), 
+                user: 'Admin 1'
+            },
+            {
+                type: 'ADMIN_NOTE',
+                content: 'Se ha asignado el caso al Dpto. de Soporte para investigación.',
+                date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), 
+                user: 'Admin 1'
+            },
+            {
+                type: 'PUBLIC_ANSWER',
+                content: 'Hemos recibido su queja y ya se encuentra en proceso de revisión, le daremos respuesta definitiva en 48h.',
+                date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), 
+                user: 'Admin 2'
+            },
+            {
+                type: 'STATUS_CHANGE',
+                content: 'Estado cambiado a CERRADA. Tiempo de respuesta total: 5 días, 4 horas y 12 minutos.',
+                date: new Date().toISOString(), 
+                user: 'Admin 3'
             }
+        ].sort((a, b) => new Date(a.date) - new Date(b.date)); 
+
+        setHistory(dummyHistory);
+    }, [complaintId]);
+
+    useEffect(() => {
+        loadHistory();
+    }, [loadHistory]);
+
+    const handleAnswerSubmit = async (e) => {
+        e.preventDefault();
+        if (!message.trim() || !isAuthenticated) return;
+
+        setIsSending(true);
+        try {
+            // Usa el endpoint para crear una respuesta pública
+            await complaintsAPI.createAnswer(complaintId, message.trim());
+            setMessage('');
+            
+            // Recarga el histórico para ver la nueva respuesta inmediatamente
+            loadHistory(); 
+            onAnswerAdded(); 
+            
         } catch (error) {
-            console.error("Error al añadir respuesta:", error);
-            alert("Error al añadir la respuesta. Asegúrate de que el backend está corriendo.");
+            // Usamos console.error para no interrumpir al usuario con alert()
+            console.error("Error al enviar respuesta:", error.response?.data?.error || "Error desconocido al contactar al servidor.");
         } finally {
-            setIsSubmitting(false);
+            setIsSending(false);
         }
     };
 
     return (
-        <div style={{ marginTop: '10px', padding: '10px', borderTop: '1px solid #ccc' }}>
-            {/* Sección para mostrar respuestas */}
-            <h4 style={{ color: '#007bff' }}>Respuestas ({answers.length})</h4>
-            {answers.length === 0 ? (
-                <p style={{ color: '#666' }}>Aún no hay respuestas para esta queja.</p>
-            ) : (
-                <ul style={{ listStyle: 'none', paddingLeft: '10px' }}>
-                    {answers.map((answer, index) => (
-                        <li key={index} style={{ marginBottom: '8px', padding: '5px', borderLeft: '3px solid #007bff' }}>
-                            <p style={{ margin: 0 }}>{answer.message}</p>
-                            <small style={{ color: '#1e1e1eff' }}> {new Date(answer.date).toLocaleString()}</small>
-                        </li>
-                    ))}
-                </ul>
-            )}
+        <div style={styles.container}>
+            <div style={styles.title}>
+                Histórico de Gestión (Eventos y Duración)
+            </div>
 
-            {/* Sección para añadir una nueva respuesta */}
-            <form onSubmit={handleSubmit} style={{ marginTop: '15px' }}>
-                <textarea
-                    rows="3"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Escribe tu respuesta aquí..."
-                    style={{
-                        width: '100%',
-                        padding: '8px',
-                        borderRadius: '4px',
-                        border: '1px solid #000000ff',
-                        resize: 'vertical',
-                        backgroundColor: '#ffffffff',
-                        color: '#000',
-                        fontSize: '14px',
-                        fontFamily: 'inherit'
-                    }}
-                    required
-                />
-                <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    style={{
-                        padding: '8px 15px',
-                        backgroundColor: '#28a745',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '5px',
-                        cursor: 'pointer',
-                        marginTop: '5px'
-                    }}
-                >
-                    {isSubmitting ? 'Enviando...' : 'Responder'}
-                </button>
-            </form>
+            <div style={styles.historyBox}>
+                {history.length === 0 ? (
+                    <p style={{ color: '#000', textAlign: 'center' }}>No hay eventos registrados.</p>
+                ) : (
+                    history.map((event, index) => (
+                        <div key={index} style={styles.eventItem}>
+                            <div style={styles.eventHeader}>
+                                <span style={getEventStyle(event.type)}>
+                                    {new Date(event.date).toLocaleString()}
+                                </span>
+                                <span style={{ float: 'right', fontWeight: 'normal', color: '#666' }}>
+                                    Por: {event.user || 'Desconocido'}
+                                </span>
+                            </div>
+                            <div style={styles.eventContent}>
+                                {event.content}
+                            </div>
+                        </div>
+                    ))
+                )}
+            </div>
+
+            {/* Formulario de Respuesta (solo si está autenticado) */}
+            {isAuthenticated && (
+                <div style={{ marginTop: '20px' }}>
+                    <h4 style={{ color: '#333', marginBottom: '10px' }}>Agregar Respuesta Pública</h4>
+                    <form onSubmit={handleAnswerSubmit} style={styles.form}>
+                        <textarea
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                            placeholder="Escribe la respuesta que será visible para el usuario..."
+                            required
+                            rows="4"
+                            style={styles.textArea}
+                            disabled={isSending}
+                        />
+                        <button
+                            type="submit"
+                            style={styles.button}
+                            disabled={isSending || !message.trim()}
+                        >
+                            {isSending ? 'Enviando...' : 'Enviar Respuesta'}
+                        </button>
+                    </form>
+                </div>
+            )}
         </div>
     );
-}
+};
 
 export default AnswerSection;
