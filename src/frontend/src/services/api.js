@@ -36,7 +36,7 @@ complaintsClient.interceptors.request.use((config) => {
     config.headers['Authorization'] = `Bearer ${sessionId}`;
   }
   return config;
-});
+}); 
 
 complaintsClient.interceptors.response.use(
   (response) => response,

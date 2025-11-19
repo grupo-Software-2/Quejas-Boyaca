@@ -30,17 +30,13 @@ function App() {
     return entityNames[entityCode] || entityCode.replace(/_/g, " ");
   };
 
-  const [currentPage, setCurrentPage] = useState("home"); 
+  const [currentPage, setCurrentPage] = useState("form");
   const [authView, setAuthView] = useState("login");
-  const [isGuest, setIsGuest] = useState(false);
+
+  // Invitado por defecto solo para mostrar la pantalla inicial
+  const [isGuest, setIsGuest] = useState(true);
 
   const [complaintToEdit, setComplaintToEdit] = useState(null);
-
-  useEffect(() => {
-    if (isGuest && currentPage === "home") {
-      setCurrentPage("form");
-    }
-  }, [isGuest, currentPage]);
 
   if (loading) {
     return (
@@ -57,17 +53,6 @@ function App() {
     );
   }
 
-  if (!isAuthenticated && !isGuest) {
-    return authView === "login" ? (
-      <Login
-        onSwitchToRegister={() => setAuthView("register")}
-        onContinueAsGuest={() => setIsGuest(true)}
-      />
-    ) : (
-      <Register onSwitchToLogin={() => setAuthView("login")} />
-    );
-  }
-
   return (
     <div style={{
       minHeight: "100vh",
@@ -79,15 +64,17 @@ function App() {
       fontFamily: "Arial, sans-serif"
     }}>
       <div style={{
-        width: "600px",
+        width: "900px",
         maxHeight: "90vh",
         overflowY: "auto",
         backgroundColor: "white",
         borderRadius: "10px",
         padding: "30px",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
+        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+        color: "#000"
       }}>
-        {/* Barra de usuario */}
+
+        {/* Barra superior */}
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -99,177 +86,39 @@ function App() {
           border: '1px solid #ddd'
         }}>
           <div style={{ color: '#000' }}>
-            <strong>Usuario:</strong> {isGuest ? 'Invitado' : user?.username || 'Usuario'}
-            {!isGuest && user?.role === 'ADMIN' && (
-              <span style={{
-                marginLeft: '10px',
-                padding: '3px 8px',
-                backgroundColor: '#dc3545',
-                color: 'white',
-                borderRadius: '12px',
-                fontSize: '12px',
-                fontWeight: 'bold'
-              }}>
-                ADMIN
-              </span>
+            {isAuthenticated && (
+              <>
+                <strong>Usuario:</strong> {user?.username}
+              </>
             )}
           </div>
-          <button
-            onClick={() => { logout(); setIsGuest(false); }}
-            style={{
-              padding: '8px 15px',
-              backgroundColor: '#dc3545',
-              color: 'white',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer',
-              fontWeight: 'bold'
-            }}
-          >
-            {isGuest ? 'Salir' : 'Cerrar Sesión'}
-          </button>
-        </div>
 
-        <h1 style={{ textAlign: "center", color: "#333", marginBottom: "10px" }}>
-          Sistema de Registro de Quejas
-        </h1>
-        <p style={{ textAlign: "center", color: "#555", marginBottom: "20px" }}>
-          Bienvenido {isGuest ? "invitado" : user?.username}
-        </p>
-
-        {/* Mensaje informativo para invitados */}
-        {isGuest && (
-          <div style={{
-            padding: '12px',
-            backgroundColor: '#fff3cd',
-            border: '1px solid #ffc107',
-            borderRadius: '5px',
-            marginBottom: '20px',
-            textAlign: 'center',
-            color: '#856404'
-          }}>
-            <strong>⚠️ Acceso limitado:</strong> Como invitado solo puedes registrar quejas.
-            <br />
-            <span style={{ fontSize: '14px' }}>
-              Para ver reportes y gestionar quejas, inicia sesión.
-            </span>
-          </div>
-        )}
-
-        {/* Botones de navegación - SOLO PARA USUARIOS AUTENTICADOS */}
-        {!isGuest && (
-          <div style={{
-            display: "flex",
-            justifyContent: "center",
-            flexWrap: "wrap",
-            marginBottom: "20px"
-          }}>
+          {/* Botón de iniciar sesión (solo si está como invitado) */}
+          {isGuest && (
             <button
-              onClick={() => setCurrentPage("list")}
+              onClick={() => setIsGuest(false)}
               style={{
-                margin: "5px",
-                padding: "12px 20px",
-                backgroundColor: currentPage === "list" ? "#4CAF50" : "#ddd",
-                color: currentPage === "list" ? "white" : "black",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
+                padding: '8px 15px',
+                backgroundColor: '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                marginRight: '10px'
               }}
             >
-              Ver Quejas por Entidad
+              Iniciar Sesión
             </button>
+          )}
 
+          {/* Botón Cerrar sesión SOLO si está autenticado */}
+          {isAuthenticated && (
             <button
-              onClick={() => { setCurrentPage("form"); setComplaintToEdit(null); }}
+              onClick={logout}
               style={{
-                margin: "5px",
-                padding: "12px 20px",
-                backgroundColor: currentPage === "form" ? "#4CAF50" : "#ddd",
-                color: currentPage === "form" ? "white" : "black",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-              }}
-            >
-              {complaintToEdit ? "Editar Queja" : "Registrar Queja"}
-            </button>
-
-            <button
-              onClick={() => { setCurrentPage("report")}}
-              style={{
-                margin: "5px",
-                padding: "12px 20px",
-                backgroundColor: currentPage === "report" ? "#4CAF50" : "#ddd",
-                color: currentPage === "report" ? "white" : "black",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-              }}
-            >
-              Reporte de Quejas
-            </button>
-          </div>
-        )}
-
-        {/* Contenido dinámico */}
-        {currentPage === "list" && !isGuest && (
-          <ComplaintList
-            entities={entities}
-            normalizeEntityName={normalizeEntityName}
-            onEdit={(complaint) => {
-              setComplaintToEdit(complaint);
-              setCurrentPage("form");
-            }}
-          />
-        )}
-
-        {currentPage === "form" && (
-          <ComplaintForm
-            entities={entities}
-            normalizeEntityName={normalizeEntityName}
-            complaintToEdit={complaintToEdit}
-            onComplaintAdded={() => {
-              if (isGuest) {
-                // El invitado se queda en el formulario
-                alert("Queja registrada con éxito. Puedes registrar otra queja o salir.");
-              } else {
-                // Usuario autenticado va a la lista
-                setCurrentPage("list");
-                setComplaintToEdit(null);
-              }
-            }}
-          />
-        )}
-
-        {currentPage === "report" && !isGuest && (
-          <ComplaintReport
-            entities={entities}
-            normalizeEntityName={normalizeEntityName}
-          />
-        )}
-
-        {currentPage === "home" && !isGuest && (
-          <p style={{ textAlign: "center" }}>Selecciona una opción para comenzar.</p>
-        )}
-
-        {/* Mensaje si invitado intenta acceder a páginas restringidas */}
-        {isGuest && (currentPage === "list" || currentPage === "report") && (
-          <div style={{
-            padding: '20px',
-            backgroundColor: '#f8d7da',
-            border: '1px solid #f5c6cb',
-            borderRadius: '5px',
-            textAlign: 'center',
-            color: '#721c24'
-          }}>
-            <h3>🚫 Acceso Denegado</h3>
-            <p>Esta sección solo está disponible para usuarios registrados.</p>
-            <button
-              onClick={() => { setIsGuest(false); logout(); }}
-              style={{
-                marginTop: '10px',
-                padding: '10px 20px',
-                backgroundColor: '#4CAF50',
+                padding: '8px 15px',
+                backgroundColor: '#dc3545',
                 color: 'white',
                 border: 'none',
                 borderRadius: '5px',
@@ -277,9 +126,107 @@ function App() {
                 fontWeight: 'bold'
               }}
             >
-              Ir a Iniciar Sesión
+              Cerrar Sesión
             </button>
-          </div>
+          )}
+        </div>
+
+        {/* Si NO es invitado y NO está logueado -> mostrar login o register */}
+        {!isGuest && !isAuthenticated && (
+          authView === "login" ? (
+            <Login onSwitchToRegister={() => setAuthView("register")} />
+          ) : (
+            <Register onSwitchToLogin={() => setAuthView("login")} />
+          )
+        )}
+
+        {/* Si es invitado O está autenticado */}
+        {(isGuest || isAuthenticated) && (
+          <>
+            <h1 style={{ textAlign: "center", color: "#333", marginBottom: "10px" }}>
+              Sistema de Registro de Quejas
+            </h1>
+
+            {/* Menú solo si NO es invitado */}
+            {!isGuest && (
+              <div style={{
+                display: "flex",
+                justifyContent: "center",
+                flexWrap: "wrap",
+                marginBottom: "20px"
+              }}>
+                <button
+                  onClick={() => setCurrentPage("list")}
+                  style={{
+                    margin: "5px",
+                    padding: "12px 20px",
+                    backgroundColor: currentPage === "list" ? "#4CAF50" : "#ddd",
+                    color: currentPage === "list" ? "white" : "black",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Ver Quejas
+                </button>
+
+                <button
+                  onClick={() => { setCurrentPage("form"); setComplaintToEdit(null); }}
+                  style={{
+                    margin: "5px",
+                    padding: "12px 20px",
+                    backgroundColor: currentPage === "form" ? "#4CAF50" : "#ddd",
+                    color: currentPage === "form" ? "white" : "black",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Registrar Queja
+                </button>
+
+                <button
+                  onClick={() => { setCurrentPage("report") }}
+                  style={{
+                    margin: "5px",
+                    padding: "12px 20px",
+                    backgroundColor: currentPage === "report" ? "#4CAF50" : "#ddd",
+                    color: currentPage === "report" ? "white" : "black",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Reporte
+                </button>
+              </div>
+            )}
+
+            {currentPage === "form" && (
+              <ComplaintForm
+                entities={entities}
+                normalizeEntityName={normalizeEntityName}
+                complaintToEdit={complaintToEdit}
+                onComplaintAdded={() => {
+                  if (!isGuest) setCurrentPage("list");
+                }}
+              />
+            )}
+
+            {currentPage === "list" && !isGuest && (
+              <ComplaintList
+                entities={entities}
+                normalizeEntityName={normalizeEntityName}
+              />
+            )}
+
+            {currentPage === "report" && !isGuest && (
+              <ComplaintReport
+                entities={entities}
+                normalizeEntityName={normalizeEntityName}
+              />
+            )}
+          </>
         )}
       </div>
     </div>

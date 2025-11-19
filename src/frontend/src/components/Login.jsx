@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
-export default function Login({ onSwitchToRegister, onContinueAsGuest }) {
+export default function Login() {
   const { login } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -63,9 +63,9 @@ export default function Login({ onSwitchToRegister, onContinueAsGuest }) {
               borderRadius: "5px",
               border: "1px solid #ccc",
               boxSizing: "border-box",
-              color: "#ffffffff"
             }}
           />
+
           <input
             type="password"
             placeholder="Contraseña"
@@ -79,9 +79,9 @@ export default function Login({ onSwitchToRegister, onContinueAsGuest }) {
               borderRadius: "5px",
               border: "1px solid #ccc",
               boxSizing: "border-box",
-              color: "#ffffffff"
             }}
           />
+
           <button
             type="submit"
             style={{
@@ -98,42 +98,29 @@ export default function Login({ onSwitchToRegister, onContinueAsGuest }) {
           >
             {loading ? "Validando..." : "Login"}
           </button>
+
           {error && <p style={{ color: "red", marginTop: "15px" }}>{error}</p>}
         </form>
 
-        
+        {/* 🔥 Nuevo botón: Volver al Home */}
         <button
-          onClick={onContinueAsGuest}
+          onClick={() => window.location.reload()}
           style={{
             marginTop: "15px",
             width: "100%",
             padding: "12px",
             borderRadius: "5px",
             border: "none",
-            backgroundColor: "#007BFF",
+            backgroundColor: "#6c757d",
             color: "white",
             fontWeight: "bold",
             cursor: "pointer"
           }}
         >
-          Continuar como Invitado
+          Volver al Home
         </button>
 
-       
-        <button
-          onClick={onSwitchToRegister}
-          style={{
-            marginTop: "15px",
-            background: "none",
-            border: "none",
-            color: "#007BFF",
-            cursor: "pointer",
-            textDecoration: "underline"
-          }}
-        >
-          Registrarse
-        </button>
       </div>
     </div>
   );
-} 
+}
