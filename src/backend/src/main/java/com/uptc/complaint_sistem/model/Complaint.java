@@ -1,10 +1,20 @@
 package com.uptc.complaint_sistem.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "complaints")
@@ -40,10 +50,18 @@ public class Complaint {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ComplaintStatus status;
+    
+    
+    @Column(name = "fecha_fin_queja")
+    private LocalDateTime fechaFinQueja;
+
+    @Column(name = "duracion_respuesta")
+    private Long duracionRespuesta; 
+
 
     public Complaint() {
         this.date = LocalDateTime.now();
-        this.status = ComplaintStatus.PROCESO; // Estado por defecto
+        this.status = ComplaintStatus.PROCESO;
     }
 
     public Complaint(PublicEntity entity, String text, String ipAddress) {
@@ -52,78 +70,45 @@ public class Complaint {
         this.date = LocalDateTime.now();
         this.ipAddress = ipAddress;
         this.deleted = false;
-        this.status = ComplaintStatus.PROCESO; // Estado por defecto para nuevas quejas
+        this.status = ComplaintStatus.PROCESO;
     }
 
-    // Getters y Setters
-    public Long getId() {
-        return id;
-    }
 
-    public PublicEntity getEntity() {
-        return entity;
-    }
+    public Long getId() { return id; }
 
-    public void setEntity(PublicEntity entity) {
-        this.entity = entity;
-    }
+    public PublicEntity getEntity() { return entity; }
+    public void setEntity(PublicEntity entity) { this.entity = entity; }
 
-    public String getText() {
-        return text;
-    }
+    public String getText() { return text; }
+    public void setText(String text) { this.text = text; }
 
-    public void setText(String text) {
-        this.text = text;
-    }
+    public LocalDateTime getDate() { return date; }
+    public void setDate(LocalDateTime date) { this.date = date; }
 
-    public LocalDateTime getDate() {
-        return date;
-    }
+    public String getIpAddress() { return ipAddress; }
+    public void setIpAddress(String ipAddress) { this.ipAddress = ipAddress; }
 
-    public void setDate(LocalDateTime date) {
-        this.date = date;
-    }
+    public List<Answer> getAnswers() { return answers; }
+    public void setAnswers(List<Answer> answers) { this.answers = answers; }
 
-    public String getIpAddress() {
-        return ipAddress;
-    }
-
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
-    }
-
-    public List<Answer> getAnswers() {
-        return answers;
-    }
-
-    public void setAnswers(List<Answer> answers) {
-        this.answers = answers;
-    }
-
-    public boolean isDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(boolean deleted) {
+    public boolean isDeleted() { return deleted; }
+    public void setDeleted(boolean deleted) { 
         this.deleted = deleted;
         if (deleted && this.deletedAt == null) {
             this.deletedAt = LocalDateTime.now();
         }
     }
 
-    public LocalDateTime getDeletedAt() {
-        return deletedAt;
-    }
+    public LocalDateTime getDeletedAt() { return deletedAt; }
+    public void setDeletedAt(LocalDateTime deletedAt) { this.deletedAt = deletedAt; }
 
-    public void setDeletedAt(LocalDateTime deletedAt) {
-        this.deletedAt = deletedAt;
-    }
+    public ComplaintStatus getStatus() { return status; }
+    public void setStatus(ComplaintStatus status) { this.status = status; }
 
-    public ComplaintStatus getStatus() {
-        return status;
-    }
+    // --- Getters y Setters de los nuevos campos ---
+    public LocalDateTime getFechaFinQueja() { return fechaFinQueja; }
+    public void setFechaFinQueja(LocalDateTime fechaFinQueja) { this.fechaFinQueja = fechaFinQueja; }
 
-    public void setStatus(ComplaintStatus status) {
-        this.status = status;
-    }
+    public Long getDuracionRespuesta() { return duracionRespuesta; }
+    public void setDuracionRespuesta(Long duracionRespuesta) { this.duracionRespuesta = duracionRespuesta; }
 }

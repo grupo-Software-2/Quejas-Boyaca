@@ -1,23 +1,37 @@
 package com.uptc.complaint_sistem.controller;
 
+import java.util.List;
+import java.util.Map; // Nuevo DTO
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable; // Importado para el DTO
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.uptc.complaint_sistem.dto.ComplaintDTO;
+import com.uptc.complaint_sistem.dto.ComplaintStatusUpdateDTO;
 import com.uptc.complaint_sistem.events.dto.ReportViewedEventDTO;
 import com.uptc.complaint_sistem.events.publisher.EventPublisher;
 import com.uptc.complaint_sistem.model.PublicEntity;
 import com.uptc.complaint_sistem.security.AuthClient;
 import com.uptc.complaint_sistem.service.ComplaintService;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/complaints")
@@ -35,6 +49,40 @@ public class ComplaintController {
         this.eventPublisher = eventPublisher;
         this.authClient = authClient;
     }
+
+    @PatchMapping("/status/{id}")
+    public ResponseEntity<?> updateComplaintStatus(
+            @PathVariable Long id,
+            @RequestHeader("Authorization") String authorizationHeader,
+            @Valid @RequestBody ComplaintStatusUpdateDTO statusUpdateDTO) {
+        
+        try {
+       
+            if (!authorizationHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Token invalido"));
+            }
+
+            String token = authorizationHeader.substring(7);
+
+            boolean sessionValid = authClient.validateSession(token);
+            if (!sessionValid) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Sesión invalida"));
+            }
+
+            service.changeComplaintStatus(id, statusUpdateDTO.getStatus());
+            
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(Map.of("message", 
+                "Solicitud de cambio de estado a " + statusUpdateDTO.getStatus().name() + " aceptada y publicada. El Consumer actualizará el estado y la duración."));
+        
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error al procesar el cambio de estado"));
+        }
+    }
+
 
     @PostMapping
     public ResponseEntity<ComplaintDTO> createComplaint(

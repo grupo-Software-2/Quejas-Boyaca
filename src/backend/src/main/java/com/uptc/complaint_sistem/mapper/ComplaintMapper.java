@@ -1,12 +1,13 @@
 package com.uptc.complaint_sistem.mapper;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
+
 import com.uptc.complaint_sistem.dto.AnswerDTO;
 import com.uptc.complaint_sistem.dto.ComplaintDTO;
 import com.uptc.complaint_sistem.model.Complaint;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class ComplaintMapper {
@@ -30,6 +31,10 @@ public class ComplaintMapper {
         dto.setIpAddress(complaint.getIpAddress());
         dto.setDeleted(complaint.isDeleted());
         dto.setDeletedAt(complaint.getDeletedAt());
+        dto.setStatus(complaint.getStatus()); 
+
+        dto.setFechaFinQueja(complaint.getFechaFinQueja());
+        dto.setDuracionRespuesta(complaint.getDuracionRespuesta());
 
         if (complaint.getAnswers() != null) {
             List<AnswerDTO> answersDTOs = complaint.getAnswers()
@@ -64,6 +69,7 @@ public class ComplaintMapper {
         if (dto.getText() != null) {
             complaint.setText(dto.getText());
         }
+        
     }
 
     public List<ComplaintDTO> toDTOList(List<Complaint> complaints) {
