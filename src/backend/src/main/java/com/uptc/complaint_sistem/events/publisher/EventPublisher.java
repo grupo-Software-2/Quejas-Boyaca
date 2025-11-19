@@ -1,7 +1,7 @@
 package com.uptc.complaint_sistem.events.publisher;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.uptc.complaint_sistem.events.dto.ReportViewedEventDTO;
+import java.util.concurrent.CompletableFuture;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +13,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.concurrent.CompletableFuture;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.uptc.complaint_sistem.events.dto.ReportViewedEventDTO;
 
 @Component
 public class EventPublisher {
@@ -48,7 +49,7 @@ public class EventPublisher {
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
 
-                // DEBUG: Imprimir el JSON que se enviará
+                
                 String jsonPayload = objectMapper.writeValueAsString(event);
                 log.info("=== JSON Payload ===");
                 log.info(jsonPayload);

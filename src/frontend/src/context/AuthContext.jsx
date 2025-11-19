@@ -8,11 +8,9 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Función auxiliar para obtener el rol del usuario desde el token (si aplica)
-    // Esto es necesario para que `App.jsx` sepa si es 'ADMIN' o no.
+    
     const decodeRoleFromSessionId = (sessionId) => {
-        // En una aplicación real, decodificas el JWT.
-        // Aquí simulamos que si el ID existe, el rol es ADMIN (para la demo).
+       
         if (sessionId && sessionId.startsWith('admin_')) return 'ADMIN';
         if (sessionId) return 'USER';
         return null;
@@ -34,7 +32,7 @@ export const AuthProvider = ({ children }) => {
 
         try {
             const response = await authApi.getCurrentUser();
-            // Aseguramos que el objeto de usuario contenga el rol (necesario para la vista Admin)
+        
             const role = response.data.role || decodeRoleFromSessionId(sessionId);
             setUser({ ...response.data, role });
         } catch (error) {
@@ -55,7 +53,6 @@ export const AuthProvider = ({ children }) => {
             }
 
             localStorage.setItem("sessionId", sessionId);
-            // Si el backend no devuelve el rol, lo inferimos
             const finalRole = role || decodeRoleFromSessionId(sessionId);
             setUser({ username, role: finalRole });
             return { success: true };
@@ -81,7 +78,7 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             console.error('Error al cerrar sesión:', error);
         } finally {
-            localStorage.removeItem("sessionId"); // CRUCIAL: Remover el ID al cerrar sesión
+            localStorage.removeItem("sessionId"); 
             setUser(null);
         }
     };
@@ -94,7 +91,7 @@ export const AuthProvider = ({ children }) => {
         register,
         logout,
         isAuthenticated: !!user,
-        // Usamos user?.role para que App.jsx sepa si mostrar el panel Admin
+       
         isAdmin: user?.role === 'ADMIN',
     };
 

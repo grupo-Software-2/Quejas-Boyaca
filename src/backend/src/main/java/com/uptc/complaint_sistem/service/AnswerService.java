@@ -1,5 +1,11 @@
 package com.uptc.complaint_sistem.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.uptc.complaint_sistem.dto.AnswerDTO;
 import com.uptc.complaint_sistem.mapper.AnswerMapper;
 import com.uptc.complaint_sistem.model.Answer;
@@ -7,11 +13,6 @@ import com.uptc.complaint_sistem.model.Complaint;
 import com.uptc.complaint_sistem.model.ComplaintStatus;
 import com.uptc.complaint_sistem.repository.AnswerRepository;
 import com.uptc.complaint_sistem.repository.ComplaintRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class AnswerService {
@@ -30,14 +31,14 @@ public class AnswerService {
         Complaint complaint = complaintRepository.findById(complaintId)
                 .orElseThrow(() -> new RuntimeException("Complaint not found with ID: " + complaintId));
 
-        // Actualizar el estado de la queja a "REVISION"
+        
         complaint.setStatus(ComplaintStatus.REVISION);
-        complaintRepository.save(complaint); // Guardar explícitamente el cambio de estado
+        complaintRepository.save(complaint); 
 
-        // Crear una nueva respuesta y asociarla a la queja
+       
         Answer answer = new Answer(message, complaint);
 
-        // Guardar la respuesta en la base de datos
+        
         Answer savedAnswer = answerRepository.save(answer);
         return answerMapper.toAnswerDTO(savedAnswer);
     }

@@ -41,17 +41,17 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
 
   const pageSize = 10;
 
-  // Cargar quejas
+ 
   const loadComplaints = useCallback(() => {
     if (!selectedEntity) return;
     setLoading(true);
     complaintsAPI.getComplaintsByEntity(selectedEntity)
       .then((res) => {
         const data = res.data || [];
-        // Normaliza las fechas si vienen en formato string para la visualización
+        
         const normalizedData = data.map(c => ({
             ...c,
-            // Asegura que la fecha tenga el formato correcto para new Date()
+           
             date: c.date || c.createdAt || new Date().toISOString()
         }));
         setAllComplaints(normalizedData);
@@ -71,14 +71,12 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
   useEffect(() => { loadComplaints(); }, [loadComplaints]);
   useEffect(() => { setPage(0); }, [selectedEntity]);
 
-  // Paginación
+ 
   const handleNextPage = () => { if (page < totalPages - 1) setPage(page + 1); };
   const handlePreviousPage = () => { if (page > 0) setPage(page - 1); };
   const handlePageChange = (newPage) => setPage(newPage);
 
-  // ===========================
-  // FUNCIONES ELIMINAR / EDITAR
-  // ===========================
+  
   const handleDeleteClick = (complaint) => {
     setComplaintToDelete(complaint);
     setShowDeleteModal(true);
@@ -103,7 +101,7 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
       console.log("Queja eliminada exitosamente.");
       setShowDeleteModal(false);
       setComplaintToDelete(null);
-      loadComplaints(); // Recargar la lista
+      loadComplaints(); 
     } catch (error) {
       console.error("Error al eliminar la queja:", error.response?.data?.error || "Error al eliminar la queja.");
     } finally { setIsDeleting(false); }
@@ -119,9 +117,9 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
     setShowEditModal(false);
   };
 
-  // Función clave actualizada para la gestión de estado (CUMPLE LA TAREA)
+  
   const handleConfirmEdit = async (updatedData) => {
-    // updatedData contiene: { id, text, status, adminNote }
+   
     if (!isAuthenticated || !sessionId) {
       console.error("Sesión no válida para editar.");
       return;
@@ -130,12 +128,12 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
     setIsEditing(true);
 
     try {
-      // Se envía el nuevo estado y la nota para que el backend cree el evento histórico.
+      
       await protectedComplaintsAPI.editComplaint(updatedData.id, updatedData);
       console.log("Queja gestionada/editada exitosamente.");
       setShowEditModal(false);
       setComplaintToEdit(null);
-      loadComplaints(); // Recargar la lista para mostrar el nuevo estado
+      loadComplaints(); 
     } catch (error) {
       console.error("Error al editar/gestionar la queja:", error.response?.data?.error || "Error al editar la queja.");
     } finally { setIsEditing(false); }
@@ -198,10 +196,10 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
                 </div>
               </div>
                 
-                {/* Sección de Respuestas/Histórico */}
+           
               <AnswerSection
                 complaintId={c.id}
-                initialAnswers={c.answers} // Asume que 'answers' viene en el objeto de queja
+                initialAnswers={c.answers} 
                 onAnswerAdded={loadComplaints}
               />
             </li>
@@ -209,7 +207,7 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
         </ul>
       )}
       
-      {/* Paginación */}
+      
       {!loading && complaints.length > 0 && totalPages > 1 && (
         <div style={{ margin: '20px 0', textAlign: 'center' }}>
           <button onClick={handlePreviousPage} disabled={page === 0} style={{ marginRight: '10px', padding: '8px 15px', border: '1px solid #ddd', borderRadius: '5px', backgroundColor: page === 0 ? '#eee' : '#fff', cursor: 'pointer' }}>&laquo; Anterior</button>
@@ -233,7 +231,7 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
         </div>
       )}
 
-      {/* Modales */}
+      
       {showDeleteModal && (
         <DeleteComplaintModal
           complaint={complaintToDelete}

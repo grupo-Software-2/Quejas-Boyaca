@@ -5,7 +5,7 @@ import EditComplaintModal from "./EditComplaintModal";
 import AnswerSection from "./AnswerSection";
 import { complaintsAPI, protectedComplaintsAPI } from "../services/api";
 
-// Estilo según el estado de la queja
+
 const getStatusStyle = (status) => {
   switch (status) {
     case "Pendiente": return { color: "#FFA500", fontWeight: "bold" };
@@ -34,7 +34,7 @@ function ComplaintListByEntity({ entities, normalizeEntityName }) {
 
   const pageSize = 10;
 
-  // Cargar quejas
+  
   const loadComplaints = useCallback(() => {
     if (!selectedEntity) return;
     setLoading(true);

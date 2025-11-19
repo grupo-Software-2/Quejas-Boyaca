@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { complaintsAPI } from '../services/api'; // Manteniendo la ruta
-import { useAuth } from '../context/AuthContext'; // Manteniendo la ruta
-// Nota: Las rutas de importación son correctas si estás dentro de src/components
+import { complaintsAPI } from '../services/api'; 
+import { useAuth } from '../context/AuthContext'; 
 
-// Estilos de AnswerSection
 const styles = {
     container: {
         marginTop: '20px',
@@ -67,34 +65,32 @@ const styles = {
     },
 };
 
-// Función para estilizar eventos
+
 const getEventStyle = (type) => {
     switch (type) {
         case 'STATUS_CHANGE':
-            return { color: '#007bff' }; // Azul para cambio de estado
+            return { color: '#007bff' }; 
         case 'ADMIN_NOTE':
-            return { color: '#ffc107', fontWeight: 'normal' }; // Naranja/Amarillo para nota interna
+            return { color: '#ffc107', fontWeight: 'normal' }; 
         case 'PUBLIC_ANSWER':
-            return { color: '#28a745' }; // Verde para respuesta pública
+            return { color: '#28a745' }; 
         case 'COMPLAINT_CREATED':
-            return { color: '#6c757d' }; // Gris para la creación
+            return { color: '#6c757d' }; 
         default:
             return { color: '#000' };
     }
 };
 
 const AnswerSection = ({ complaintId, onAnswerAdded }) => {
-    // Es CRUCIAL que useAuth devuelva un objeto con 'isAuthenticated'
+    
     const { isAuthenticated } = useAuth(); 
     const [message, setMessage] = useState('');
     const [isSending, setIsSending] = useState(false);
     const [history, setHistory] = useState([]); 
 
-    // Simulamos la carga del histórico (incluyendo eventos de estado y duración)
+   
     const loadHistory = useCallback(() => {
-        // *** ESTO DEBE SER REEMPLAZADO POR complaintsAPI.getComplaintHistory(complaintId) ***
-
-        // Placeholder de Histórico de Eventos (Incluye la duración del tiempo de respuesta)
+      
         const dummyHistory = [
             {
                 type: 'COMPLAINT_CREATED',
@@ -141,16 +137,16 @@ const AnswerSection = ({ complaintId, onAnswerAdded }) => {
 
         setIsSending(true);
         try {
-            // Usa el endpoint para crear una respuesta pública
+           
             await complaintsAPI.createAnswer(complaintId, message.trim());
             setMessage('');
             
-            // Recarga el histórico para ver la nueva respuesta inmediatamente
+           
             loadHistory(); 
             onAnswerAdded(); 
             
         } catch (error) {
-            // Usamos console.error para no interrumpir al usuario con alert()
+          
             console.error("Error al enviar respuesta:", error.response?.data?.error || "Error desconocido al contactar al servidor.");
         } finally {
             setIsSending(false);
@@ -185,7 +181,7 @@ const AnswerSection = ({ complaintId, onAnswerAdded }) => {
                 )}
             </div>
 
-            {/* Formulario de Respuesta (solo si está autenticado) */}
+           
             {isAuthenticated && (
                 <div style={{ marginTop: '20px' }}>
                     <h4 style={{ color: '#333', marginBottom: '10px' }}>Agregar Respuesta Pública</h4>
