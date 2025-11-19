@@ -20,7 +20,7 @@ function ComplaintReport({ entities, normalizeEntityName }) {
     setError(null);
     
     try {
-      // LLAMADA REAL A LA API
+      
       const response = await protectedComplaintsAPI.getReportComplaints(); 
       setReportData(response.data || []); 
     } catch (err) {
@@ -94,7 +94,7 @@ function ComplaintReport({ entities, normalizeEntityName }) {
       return <p style={{ textAlign: 'center', padding: '30px', color: '#333' }}>No hay datos disponibles para generar el reporte.</p>;
   }
   
-  // Cálculos de KPIs y Distribución por Entidad
+  
   const total = reportData.length;
   const closedCount = reportData.filter(c => c.status === 'CERRADA' || c.status === 'RECHAZADA').length;
   const pendingCount = reportData.filter(c => c.status === 'PENDIENTE' || c.status === 'REVISION').length;
@@ -110,12 +110,12 @@ function ComplaintReport({ entities, normalizeEntityName }) {
       <h2 style={styles.title}>Vista General y Reporte de Quejas</h2>
       <p style={styles.subtitle}>Métricas de Estado y Duración de la Gestión.</p>
 
-      {/* Tarjetas de KPIs */}
+      
       <div style={styles.kpiGrid}>
         <KpiCard title="TOTAL QUEJAS" value={total} color="#343a40" />
         <KpiCard title="PENDIENTE / REVISIÓN" value={pendingCount} color="#ffc107" />
         <KpiCard title="EN PROCESO" value={processCount} color="#17a2b8" />
-        {/* Aquí la duración debe venir del cálculo de tu API real */}
+        
         <KpiCard title="TIEMPO PROMEDIO RES." value="Calculando..." color="#6f42c1" /> 
         <KpiCard title="CERRADAS (Total)" value={closedCount} color="#28a745" />
       </div>
@@ -145,7 +145,7 @@ function ComplaintReport({ entities, normalizeEntityName }) {
           ))}
       </div>
       
-      {/* TABLA DETALLADA */}
+      
       <div style={{ marginTop: '40px' }}>
         {renderDetailedTable()} 
       </div>
@@ -153,7 +153,7 @@ function ComplaintReport({ entities, normalizeEntityName }) {
   );
 }
 
-// Componente para las tarjetas de KPIs
+
 const KpiCard = ({ title, value, color }) => (
   <div style={{ ...styles.kpiCard, borderLeft: `5px solid ${color}` }}>
     <div style={styles.kpiTitle}>{title}</div>
@@ -213,7 +213,7 @@ const styles = {
     borderBottom: '1px solid #eee',
     paddingBottom: '5px',
   },
-  // --- Estilos de Distribución ---
+  
   distributionBox: {
       marginBottom: '30px',
   },
@@ -246,7 +246,7 @@ const styles = {
       fontSize: '13px',
       color: '#6c757d',
   },
-  // --- Estilos de la tabla detallada (Ajustado para Scroll Vertical) ---
+  
   tableWrapper: {
     overflowX: 'auto', 
     overflowY: 'auto',   

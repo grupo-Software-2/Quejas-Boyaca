@@ -101,7 +101,7 @@ export default function Login({ onSwitchToRegister, onContinueAsGuest }) {
           {error && <p style={{ color: "red", marginTop: "15px" }}>{error}</p>}
         </form>
 
-        {/* Botón Continuar como invitado */}
+        
         <button
           onClick={onContinueAsGuest}
           style={{
@@ -119,7 +119,7 @@ export default function Login({ onSwitchToRegister, onContinueAsGuest }) {
           Continuar como Invitado
         </button>
 
-        {/* Enlace para registrarse */}
+       
         <button
           onClick={onSwitchToRegister}
           style={{

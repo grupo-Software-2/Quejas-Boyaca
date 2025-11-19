@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-// Estilos base para el modal
+
 const modalStyles = {
     overlay: {
         position: 'fixed',

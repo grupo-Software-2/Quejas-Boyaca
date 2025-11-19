@@ -1,8 +1,9 @@
 package com.uptc.complaint_sistem.events.dto;
 
+import java.time.LocalDateTime;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.time.LocalDateTime;
 
 public class ReportViewedEventDTO {
 
@@ -25,7 +26,7 @@ public class ReportViewedEventDTO {
     @JsonProperty("totalComplaints")
     private int totalComplaints;
 
-    @JsonProperty("reportType")  // ← IMPORTANTE
+    @JsonProperty("reportType")  
     private String reportType;
 
     @JsonProperty("source")
@@ -90,7 +91,7 @@ public class ReportViewedEventDTO {
         }
 
         public Builder reportType(String reportType) {
-            // Asegurar que nunca sea null
+            
             dto.reportType = (reportType != null && !reportType.isEmpty()) ? reportType : "REPORTE_GENERAL";
             return this;
         }
@@ -102,7 +103,7 @@ public class ReportViewedEventDTO {
             if (dto.timestamp == null) {
                 dto.timestamp = LocalDateTime.now();
             }
-            // IMPORTANTE: Asegurar que reportType nunca sea null
+           
             if (dto.reportType == null || dto.reportType.isEmpty()) {
                 dto.reportType = "REPORTE_GENERAL";
             }

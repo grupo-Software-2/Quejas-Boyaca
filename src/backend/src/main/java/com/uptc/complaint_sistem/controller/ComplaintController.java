@@ -1,11 +1,11 @@
 package com.uptc.complaint_sistem.controller;
 
 import java.util.List;
-import java.util.Map; // Nuevo DTO
+import java.util.Map; 
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable; // Importado para el DTO
+import org.springframework.data.domain.Pageable; 
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

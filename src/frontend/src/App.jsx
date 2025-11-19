@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-// Importaciones de componentes
 import { useAuth } from "./context/AuthContext.jsx";
 import ComplaintForm from "./components/ComplaintForm.jsx";
 import ComplaintListByEntity from "./components/ComplaintListByEntity.jsx"; 
@@ -96,7 +95,7 @@ function App() {
         boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
         color: "#333" 
       }}>
-        {/* Barra de usuario */}
+        
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -146,7 +145,7 @@ function App() {
           Bienvenido {isGuest ? "invitado" : user?.username}
         </p>
 
-        {/* Mensaje informativo para invitados */}
+       
         {isGuest && (
           <div style={{
             padding: '12px',
@@ -165,7 +164,7 @@ function App() {
           </div>
         )}
 
-        {/* Botones de navegación - SOLO PARA ADMINISTRADORES */}
+       
         {isAdmin && (
           <div style={{
             display: "flex",
@@ -220,8 +219,7 @@ function App() {
           </div>
         )}
         
-        {/* Contenido dinámico */}
-
+      
         {currentPage === "list" && isAdmin && (
           <ComplaintListByEntity
             entities={entities}
@@ -252,7 +250,7 @@ function App() {
           <p style={{ textAlign: "center", color: "#333" }}>Selecciona una opción para comenzar la gestión.</p>
         )}
         
-        {/* Mensaje si no es administrador y está autenticado */}
+        
         {isAuthenticated && !isAdmin && (currentPage === "home" || currentPage === "list" || currentPage === "report") && (
           <div style={{
             padding: '20px',
@@ -262,12 +260,12 @@ function App() {
             textAlign: 'center',
             color: '#721c24'
           }}>
-            <h3>🚫 Acceso Restringido</h3>
+            <h3> Acceso Restringido</h3>
             <p>Solo los usuarios Administradores pueden acceder a esta sección de gestión y reportes.</p>
           </div>
         )}
         
-        {/* Mensaje si invitado intenta acceder a páginas restringidas (ya manejado por isGuest check) */}
+        
       </div>
       <style>{`
         /* Estilo global para el scrollbar */
