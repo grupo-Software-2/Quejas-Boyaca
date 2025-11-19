@@ -1,28 +1,24 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { protectedComplaintsAPI } from '../services/api'; 
-import { useAuth } from '../context/AuthContext.jsx'; 
-import { complaintsAPI } from '../services/api'; 
+import { protectedComplaintsAPI } from '../services/api';
+import { useAuth } from '../context/AuthContext.jsx';
+import { complaintsAPI } from '../services/api';
 
 
 function ComplaintReport({ entities, normalizeEntityName }) {
   const { isAuthenticated, isAdmin } = useAuth();
-  const [reportData, setReportData] = useState([]); 
+  const [reportData, setReportData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const fetchReportData = useCallback(async () => {
-    if (!isAuthenticated || !isAdmin) {
-        setError("Acceso denegado. Solo administradores pueden ver este reporte.");
-        return;
-    }
 
     setLoading(true);
     setError(null);
-    
+
     try {
-      
-      const response = await protectedComplaintsAPI.getReportComplaints(); 
-      setReportData(response.data || []); 
+
+      const response = await protectedComplaintsAPI.getReportComplaints();
+      setReportData(response.data || []);
     } catch (err) {
       console.error("Error fetching report data:", err);
       setError(err.response?.data?.error || "No se pudieron cargar los datos del reporte. Inténtalo más tarde.");
@@ -34,54 +30,54 @@ function ComplaintReport({ entities, normalizeEntityName }) {
   useEffect(() => {
     fetchReportData();
   }, [fetchReportData]);
-  
+
 
   const renderDetailedTable = () => {
     return (
-        <div style={styles.tableWrapper}>
-            <h3 style={styles.sectionTitle}>Registro Detallado y Duración de Quejas</h3>
-            <table style={styles.table}>
-                <thead>
-                    <tr style={styles.thRow}>
-                        <th style={styles.th}>ID</th>
-                        <th style={{...styles.th, minWidth: '250px'}}>Título de Queja</th> 
-                        <th style={styles.th}>Entidad</th>
-                        <th style={styles.th}>Fecha Registro</th>
-                        <th style={styles.th}>Fecha Cierre</th>
-                        <th style={styles.th}>Estado</th>
-                        <th style={styles.th}>Duración Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {reportData.map((c, index) => (
-                        <tr key={c.id} style={{ backgroundColor: index % 2 === 0 ? '#f0f0f0' : '#fff' }}>
-                            <td style={styles.td}>{c.id}</td>
-                            <td 
-                                style={{
-                                    ...styles.td, 
-                                    maxWidth: '300px',
-                                    whiteSpace: 'normal', 
-                                    wordBreak: 'break-word',
-                                    fontWeight: '500' 
-                                }}
-                            >
-                                {c.title}
-                            </td>
-                            <td style={styles.td}>{normalizeEntityName(c.entity)}</td>
-                            <td style={styles.td}>{new Date(c.date).toLocaleDateString()}</td>
-                            <td style={styles.td}>{c.closureDate ? new Date(c.closureDate).toLocaleDateString() : 'N/A'}</td>
-                            <td style={{...styles.td, fontWeight: 'bold', color: c.status === 'CERRADA' || c.status === 'RECHAZADA' ? '#dc3545' : '#17a2b8'}}>{c.status}</td>
-                            <td style={styles.td}>
-                                <strong>{c.duration}</strong>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+      <div style={styles.tableWrapper}>
+        <h3 style={styles.sectionTitle}>Registro Detallado y Duración de Quejas</h3>
+        <table style={styles.table}>
+          <thead>
+            <tr style={styles.thRow}>
+              <th style={styles.th}>ID</th>
+              <th style={{ ...styles.th, minWidth: '250px' }}>Título de Queja</th>
+              <th style={styles.th}>Entidad</th>
+              <th style={styles.th}>Fecha Registro</th>
+              <th style={styles.th}>Fecha Cierre</th>
+              <th style={styles.th}>Estado</th>
+              <th style={styles.th}>Duración Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {reportData.map((c, index) => (
+              <tr key={c.id} style={{ backgroundColor: index % 2 === 0 ? '#f0f0f0' : '#fff' }}>
+                <td style={styles.td}>{c.id}</td>
+                <td
+                  style={{
+                    ...styles.td,
+                    maxWidth: '300px',
+                    whiteSpace: 'normal',
+                    wordBreak: 'break-word',
+                    fontWeight: '500'
+                  }}
+                >
+                  {c.title}
+                </td>
+                <td style={styles.td}>{normalizeEntityName(c.entity)}</td>
+                <td style={styles.td}>{new Date(c.date).toLocaleDateString()}</td>
+                <td style={styles.td}>{c.closureDate ? new Date(c.closureDate).toLocaleDateString() : 'N/A'}</td>
+                <td style={{ ...styles.td, fontWeight: 'bold', color: c.status === 'CERRADA' || c.status === 'RECHAZADA' ? '#dc3545' : '#17a2b8' }}>{c.status}</td>
+                <td style={styles.td}>
+                  <strong>{c.duration}</strong>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     );
   };
-  
+
   if (loading) {
     return <p style={{ textAlign: 'center', padding: '30px', color: '#333' }}>Cargando datos del reporte...</p>;
   }
@@ -89,20 +85,20 @@ function ComplaintReport({ entities, normalizeEntityName }) {
   if (error) {
     return <div style={styles.errorBox}>{error}</div>;
   }
-  
+
   if (!reportData || reportData.length === 0) {
-      return <p style={{ textAlign: 'center', padding: '30px', color: '#333' }}>No hay datos disponibles para generar el reporte.</p>;
+    return <p style={{ textAlign: 'center', padding: '30px', color: '#333' }}>No hay datos disponibles para generar el reporte.</p>;
   }
-  
-  
+
+
   const total = reportData.length;
   const closedCount = reportData.filter(c => c.status === 'CERRADA' || c.status === 'RECHAZADA').length;
   const pendingCount = reportData.filter(c => c.status === 'PENDIENTE' || c.status === 'REVISION').length;
   const processCount = reportData.filter(c => c.status === 'PROCESO').length;
 
   const entityCounts = entities.map(entityCode => ({
-      entity: entityCode,
-      count: reportData.filter(c => c.entity === entityCode).length
+    entity: entityCode,
+    count: reportData.filter(c => c.entity === entityCode).length
   })).filter(item => item.count > 0);
 
   return (
@@ -110,13 +106,13 @@ function ComplaintReport({ entities, normalizeEntityName }) {
       <h2 style={styles.title}>Vista General y Reporte de Quejas</h2>
       <p style={styles.subtitle}>Métricas de Estado y Duración de la Gestión.</p>
 
-      
+
       <div style={styles.kpiGrid}>
         <KpiCard title="TOTAL QUEJAS" value={total} color="#343a40" />
         <KpiCard title="PENDIENTE / REVISIÓN" value={pendingCount} color="#ffc107" />
         <KpiCard title="EN PROCESO" value={processCount} color="#17a2b8" />
-        
-        <KpiCard title="TIEMPO PROMEDIO RES." value="Calculando..." color="#6f42c1" /> 
+
+        <KpiCard title="TIEMPO PROMEDIO RES." value="Calculando..." color="#6f42c1" />
         <KpiCard title="CERRADAS (Total)" value={closedCount} color="#28a745" />
       </div>
 
@@ -130,7 +126,7 @@ function ComplaintReport({ entities, normalizeEntityName }) {
                 {normalizeEntityName(item.entity)}
               </div>
               <div style={styles.progressBarWrapper}>
-                <div 
+                <div
                   style={{
                     ...styles.progressBar,
                     width: `${(item.count / total) * 100}%`,
@@ -144,10 +140,10 @@ function ComplaintReport({ entities, normalizeEntityName }) {
             </div>
           ))}
       </div>
-      
-      
+
+
       <div style={{ marginTop: '40px' }}>
-        {renderDetailedTable()} 
+        {renderDetailedTable()}
       </div>
     </div>
   );
@@ -205,6 +201,7 @@ const styles = {
   kpiValue: {
     fontSize: '20px',
     fontWeight: 'bold',
+    color: '#000',
   },
   sectionTitle: {
     marginTop: '20px',
@@ -213,51 +210,52 @@ const styles = {
     borderBottom: '1px solid #eee',
     paddingBottom: '5px',
   },
-  
+
   distributionBox: {
-      marginBottom: '30px',
+    marginBottom: '30px',
   },
   entityBarItem: {
-      display: 'flex',
-      alignItems: 'center',
-      marginBottom: '10px',
-      padding: '5px 0',
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: '10px',
+    padding: '5px 0',
   },
   entityNameContainer: {
-      width: '180px',
-      fontWeight: '600',
-      fontSize: '14px',
+    width: '180px',
+    fontWeight: '600',
+    fontSize: '14px',
+    color: '#000',
   },
   progressBarWrapper: {
-      flexGrow: 1,
-      height: '10px',
-      backgroundColor: '#e9ecef',
-      borderRadius: '5px',
-      overflow: 'hidden',
-      margin: '0 10px',
+    flexGrow: 1,
+    height: '10px',
+    backgroundColor: '#e9ecef',
+    borderRadius: '5px',
+    overflow: 'hidden',
+    margin: '0 10px',
   },
   progressBar: {
-      height: '100%',
-      transition: 'width 0.5s ease',
+    height: '100%',
+    transition: 'width 0.5s ease',
   },
   entityCount: {
-      width: '80px',
-      textAlign: 'right',
-      fontSize: '13px',
-      color: '#6c757d',
+    width: '80px',
+    textAlign: 'right',
+    fontSize: '13px',
+    color: '#000',
   },
-  
+
   tableWrapper: {
-    overflowX: 'auto', 
-    overflowY: 'auto',   
-    maxHeight: '400px',  
+    overflowX: 'auto',
+    overflowY: 'auto',
+    maxHeight: '400px',
     marginBottom: '30px',
     borderRadius: '8px',
     border: '1px solid #ccc',
   },
   table: {
     width: '100%',
-    minWidth: '700px', 
+    minWidth: '700px',
     borderCollapse: 'collapse',
     fontSize: '14px',
   },
@@ -268,7 +266,7 @@ const styles = {
   th: {
     padding: '10px',
     textAlign: 'left',
-    position: 'sticky', 
+    position: 'sticky',
     top: 0,
     zIndex: 10,
   },

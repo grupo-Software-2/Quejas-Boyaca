@@ -83,7 +83,7 @@ export const complaintsAPI = {
 
 export const protectedComplaintsAPI = {
 
-  getReportComplaints: () => complaintsClient.get('/api/reports/complaints'),
+  getReportComplaints: () => complaintsClient.get('/api/complaints'),
 
   deleteComplaint: async (id, password) => {
     const sessionId = localStorage.getItem('sessionId');
